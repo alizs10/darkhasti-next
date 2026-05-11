@@ -1,7 +1,36 @@
-import { ArrowDownIcon, ChevronDownIcon, LockIcon, LogOutIcon, TrashIcon, UserPenIcon } from "lucide-react";
+import { handleLogout } from "@/app/actions/auth";
+import { LockIcon, LogOutIcon, TrashIcon, UserPenIcon } from "lucide-react";
 import Link from "next/link";
+import Username from "./Username";
+import { auth } from "@/app/lib/auth";
+import axios from "@/app/lib/axios";
+import ChangePassword from "./ChangePassword";
 
-export default function Profile() {
+interface IProfileStats {
+    message: string;
+    stats: {
+        requests_count: number;
+        comments_count: number;
+        chosen_comments_count: number
+    }
+}
+
+async function getUserStats() {
+    try {
+        const result = await axios.get<IProfileStats>("/profile/stats")
+
+        return result.data.stats;
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export default async function Profile() {
+
+    const session = await auth()
+    const stats = await getUserStats()
+
     return (
         <div className='py-10 flex flex-col px-4 sm:px-8 md:px-12 lg:px-20 xl:px-30 max-w-6xl md:mx-auto flex-1 w-full'>
 
@@ -22,15 +51,15 @@ export default function Profile() {
 
                     <div className="flex-1 px-2 flex-center flex-col gap-y-4 py-6">
                         <span className="text-xs text-nowrap">درخواست ها</span>
-                        <span className="text-3xl font-bold">۱۲۰</span>
+                        <span className="text-3xl font-bold">{stats?.requests_count ?? "خطا"}</span>
                     </div>
                     <div className="flex-1 flex-center flex-col gap-y-4 py-6">
                         <span className="text-xs text-nowrap">پاسخ ها</span>
-                        <span className="text-3xl font-bold">۱۲۰</span>
+                        <span className="text-3xl font-bold">{stats?.comments_count ?? "خطا"}</span>
                     </div>
                     <div className="flex-1 px-2 flex-center flex-col gap-y-4 py-6">
                         <span className="text-xs text-nowrap">پاسخ های منتخب</span>
-                        <span className="text-3xl font-bold">۱۲۰</span>
+                        <span className="text-3xl font-bold">{stats?.chosen_comments_count ?? "خطا"}</span>
                     </div>
 
 
@@ -39,34 +68,10 @@ export default function Profile() {
             </div>
 
             {/* username */}
-            <div className="mt-8 flex flex-col gap-y-2">
-
-                <h2 className="text-sm border-b border-muted pb-2">نام کاربری</h2>
-                <input type="email" value={"aure10"} placeholder="نام کاربری" className="border border-muted rounded-full px-4 py-2 focus:ring-0 focus:outline-0 text-sm text-foreground" />
-
-                <button className="flex-center gap-x-2 px-4 py-2 rounded-full text-sm border border-muted text-foreground hover:primary hover:border-primary hover:bg-primary/10 transition-colors duration-100 hover:outline-4 outline-primary/10">
-                    <UserPenIcon className="size-4" />
-                    <span>تغییر نام کاربری</span>
-                </button>
-            </div>
+            <Username current_username={session?.user.username} />
 
             {/* change password */}
-            <div className="mt-8 flex flex-col gap-y-2">
-
-                <h2 className="text-sm border-b border-muted pb-2">تغییر کلمه عبور</h2>
-
-                <span className="text-xs text-muted-foreground text-justify leading-relaxed">توجه: امکان بازیابی کلمه عبور وجود ندارد. </span>
-
-
-                <input type="password" placeholder="کلمه عبور فعلی" className="border border-muted rounded-full px-4 py-2 focus:ring-0 focus:outline-0 text-sm text-foreground" />
-                <input type="password" placeholder="کلمه عبور جدید" className="border border-muted rounded-full px-4 py-2 focus:ring-0 focus:outline-0 text-sm text-foreground" />
-                <input type="password" placeholder="تکرار کلمه عبور جدید" className="border border-muted rounded-full px-4 py-2 focus:ring-0 focus:outline-0 text-sm text-foreground" />
-
-                <button className="flex-center gap-x-2 px-4 py-2 rounded-full text-sm border border-muted text-foreground hover:primary hover:border-primary hover:bg-primary/10 transition-colors duration-100 hover:outline-4 outline-primary/10">
-                    <LockIcon className="size-4" />
-                    <span>تغییر کلمه عبور</span>
-                </button>
-            </div>
+            <ChangePassword />
 
 
             {/* delete account */}
@@ -90,7 +95,7 @@ export default function Profile() {
                 <h2 className="text-sm border-b border-muted pb-2">خروج از حساب کاربری</h2>
                 <span className="text-xs text-muted-foreground text-justify leading-relaxed">با توجه به اینکه کلمه عبور قابل بازیابی نیست، پس درصورتیکه کلمه عبور خود را فراموش کرده باشید و از حساب کاربری خود خارج شوید، دیگر قادر به ورود به آن نخواهید بود.</span>
 
-                <button className="flex-center gap-x-2 px-4 py-2 rounded-full text-sm border border-muted text-foreground hover:destructive hover:border-destructive hover:bg-destructive/10 transition-colors duration-100 hover:outline-4 outline-destructive/10">
+                <button onClick={handleLogout} className="flex-center gap-x-2 px-4 py-2 rounded-full text-sm border border-muted text-foreground hover:destructive hover:border-destructive hover:bg-destructive/10 transition-colors duration-100 hover:outline-4 outline-destructive/10">
                     <LogOutIcon className="size-4" />
                     <span>خروج از حساب کاربری</span>
                 </button>
