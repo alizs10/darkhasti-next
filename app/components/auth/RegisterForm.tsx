@@ -1,61 +1,225 @@
-import { handleRegister } from '@/app/actions/auth';
+'use client'
+
+import { checkUsernameReq, handleRegister } from '@/app/actions/auth'
+import { registerSchema } from '@/app/schemas/auth'
+import { ValidationMessages } from '@/app/lib/validation-messages'
+
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+
 import { ArrowLeftIcon } from 'lucide-react'
-import { ChangeEvent, useState } from 'react';
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
+
+import TextInput from '../Form/TextInput'
+import PasswordInput from '../Form/PasswordInput'
+import { Button } from '../common/Button'
+import { Typography } from '../common/Typography'
+
+import { useDebounce } from '@/app/hooks/useDebounce'
+
+import clsx from 'clsx'
+
+type RegisterFormValues = z.infer<
+    typeof registerSchema
+>
 
 export default function RegisterForm() {
+    const router = useRouter()
 
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [passwordConfirmation, setPasswordConfirmation] = useState('');
-    const [error, setError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] =
+        useState(false)
 
-    const handler = async (e: ChangeEvent) => {
-        e.preventDefault(); // Prevent default form submission behavior
-        setError(null); // Clear previous errors
+    const [
+        usernameAvailability,
+        setUsernameAvailability,
+    ] = useState<boolean | null>(null)
 
-        try {
-            await handleRegister(
-                {
-                    username: username,
-                    password: password,
-                    password_confirmation: passwordConfirmation,
-                }
-            );
+    const [
+        isCheckingUsername,
+        setIsCheckingUsername,
+    ] = useState(false)
 
-        } catch (error) {
+    const {
+        register,
+        watch,
+        handleSubmit,
+        formState: {
+            errors,
+            isValid,
+        },
+    } = useForm<RegisterFormValues>({
+        resolver: zodResolver(registerSchema),
+        mode: 'onChange',
+        defaultValues: {
+            username: '',
+            password: '',
+            password_confirmation: '',
+        },
+    })
 
-            setError("Something went wrong!")
+    const username = watch('username')
 
+    const debouncedUsernameTerm =
+        useDebounce(username, 1000)
+
+    useEffect(() => {
+        if (
+            !debouncedUsernameTerm ||
+            debouncedUsernameTerm.trim().length < 3
+        ) {
+            setUsernameAvailability(null)
+
+            return
         }
 
+        const checkUsername = async () => {
+            setIsCheckingUsername(true)
 
+            try {
+                const res =
+                    await checkUsernameReq({
+                        username:
+                            debouncedUsernameTerm.trim(),
+                    })
 
-    };
+                const isAvailable =
+                    res.data?.is_available ??
+                    false
+
+                setUsernameAvailability(
+                    isAvailable
+                )
+            } catch (error) {
+                console.error(error)
+            } finally {
+                setIsCheckingUsername(
+                    false
+                )
+            }
+        }
+
+        checkUsername()
+    }, [
+        debouncedUsernameTerm,
+        errors.username?.message,
+    ])
+
+    const onSubmit = async (
+        data: RegisterFormValues
+    ) => {
+        if (isLoading || !usernameAvailability) return
+
+        setIsLoading(true)
+
+        const res = await handleRegister(data)
+
+        if (!res.success) {
+            toast.error(
+                res.error?.message
+            )
+
+            setIsLoading(false)
+            return
+        }
+
+        toast.success(
+            'ثبت نام با موفقیت انجام شد. لطفا وارد شوید.'
+        )
+
+        router.push(
+            '/auth?form=login'
+        )
+    }
 
     return (
-        <form onSubmit={handler}>
-            {error && (
-                <div className="text-red-500 text-sm text-center mb-2">{error}</div>
+        <form
+            onSubmit={handleSubmit(
+                onSubmit
             )}
+        >
             <div className="flex flex-col gap-y-2 w-80 mx-auto">
-                <input type="text" placeholder="نام کاربری"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className="border border-muted rounded-full px-4 py-2 focus:ring-0 focus:outline-0 text-sm text-foreground" />
-                <input type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="کلمه عبور" className="border border-muted rounded-full px-4 py-2 focus:ring-0 focus:outline-0 text-sm text-foreground" />
-                <input type="password"
-                    value={passwordConfirmation}
-                    onChange={(e) => setPasswordConfirmation(e.target.value)}
-                    placeholder="تکرار کلمه عبور" className="border border-muted rounded-full px-4 py-2 focus:ring-0 focus:outline-0 text-sm text-foreground" />
-                <button className="mt-2 mx-auto flex-row-center gap-x-2 px-4 py-2 rounded-full text-sm border border-muted text-foreground hover:text-primary hover:border-primary hover:bg-primary/10 transition-colors duration-100 hover:outline-4 outline-primary/10">
-                    <span>ثبت نام</span>
-                    <ArrowLeftIcon className="size-4" />
-                </button>
+                <div className="flex flex-col gap-y-0.5">
+                    <TextInput
+                        {...register('username')}
+                        placeholder="نام کاربری"
+                        error={
+                            errors.username
+                                ?.message
+                        }
+                    />
+
+                    {(isCheckingUsername ||
+                        usernameAvailability !==
+                        null) && (
+                            <Typography
+                                variant="caption-xs"
+                                className={clsx({
+                                    'text-muted-foreground':
+                                        isCheckingUsername,
+
+                                    'text-success':
+                                        usernameAvailability &&
+                                        !isCheckingUsername,
+
+                                    'text-destructive':
+                                        !usernameAvailability &&
+                                        !isCheckingUsername,
+                                })}
+                            >
+                                {isCheckingUsername
+                                    ? 'در حال بررسی نام کاربری...'
+                                    : usernameAvailability
+                                        ? 'نام کاربری در دسترس است'
+                                        : 'نام کاربری دیگری انتخاب کنید. این نام کاربری قبلاً ثبت شده است.'}
+                            </Typography>
+                        )}
+                </div>
+
+                <PasswordInput
+                    {...register('password')}
+
+                    placeholder="کلمه عبور"
+                    error={
+                        errors.password
+                            ?.message
+                    }
+                />
+
+                <PasswordInput
+                    {...register('password_confirmation')}
+                    placeholder="تکرار کلمه عبور"
+                    error={
+                        errors
+                            .password_confirmation
+                            ?.message
+                    }
+                />
+
+                <Button
+                    disabled={
+                        isLoading ||
+                        !isValid ||
+                        isCheckingUsername ||
+                        usernameAvailability === false
+                    }
+                    type="submit"
+                    className="w-fit mx-auto mt-2"
+                    variant="outline-primary"
+                    size="sm"
+                    leftIcon={
+                        <ArrowLeftIcon className="size-4" />
+                    }
+                >
+                    <Typography
+                        variant="caption"
+                    >
+                        ثبت نام
+                    </Typography>
+                </Button>
             </div>
         </form>
-
     )
 }

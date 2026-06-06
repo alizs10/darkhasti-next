@@ -1,89 +1,64 @@
-'use client'
-
-import { ArrowLeftIcon, ChevronDownCircleIcon, ChevronDownIcon, MessageCircleCheckIcon, MessagesSquareIcon, MoveLeft, TrendingUpIcon } from "lucide-react";
+import { ArrowLeftIcon, ChevronDownIcon } from "lucide-react";
 import Link from "next/link";
-import { useRef } from "react";
 import RequestItem from "../requests/RequestItem";
+import { PaginationData, Request } from "@/app/types";
+import SelectFilter from "../common/SelectFilter";
+import { auth } from "@/app/lib/auth";
+import { Button } from "../common/Button";
+import { Typography } from "../common/Typography";
 
-const fake_reqs = [
-    {
-        slug: "معروفه-شیرین", // known as Shirin in Persian, a legendary princess from the tales of Shahnameh.
-        title: "سرپارک شرین",
-        description: "گزینه‌های شرین، آثاف‌های و دل‌خوردگی‌های توسعه‌کنندگان در ایران قرم آبی.",
-        is_answered: false,
-        comments_count: 0,
-        visits_count: 0
-    },
-    {
-        slug: "تازه-پری", // Persian delicacy known as peyseh.
-        title: "آبجانی پی‌سکول‌ها",
-        description: "آبجانی‌های قرم‌آبی با زعفران‌ها، گله و حلی‌ها بنابداشت شده.",
-        is_answered: false,
-        comments_count: 0,
-        visits_count: 0
-    },
-    {
-        slug: "خور سوزگانی", // Persian traditional food using corn as the main ingredient.
-        title: "خور کشم که‌ی غذا آبجانی‌ها",
-        description: "خور سوزگانی‌های قرم‌آبی در ایران، پرچم‌هایی‌تا صلح شده.",
-        is_answered: false,
-        comments_count: 0,
-        visits_count: 0
-    },
-    {
-        slug: "غذا-خورش", // traditional Persian cold soup.
-        title: "قالی کودمن بها",
-        description: "گله‌ها، زعفران‌ها و خرمی‌های آسمانی در گالی‌هایی شرافت‌هایی‌تا پرچم‌شده.",
-        is_answered: false,
-        comments_count: 220,
-        visits_count: 2000
-    },
-    {
-        slug: "آبجانی بزرگ‌توسعه", // large peyseh delicacy.
-        title: "پی‌سکول‌های خورشی",
-        description: "در قرم‌آبی‌های، تازه‌هایی‌تا پرچم‌شده، آبجانی‌های بزرگ‌توسعه در حالی قرم آبی.",
-        is_answered: false,
-        comments_count: 0,
-        visits_count: 0
-    }
-]
+interface HomeRequestsProps {
+    data?: Request[] | null
+    meta?: PaginationData
+}
 
+export default async function HomeRequests({ data, meta }: HomeRequestsProps) {
 
-export default function HomeRequests() {
+    const session = await auth()
 
-    const selectRef = useRef<null | HTMLSelectElement>(null)
+    const user = session?.user;
 
     return (
-        <div className="mt-10 flex flex-col flex-1 w-full px-4 sm:px-8 md:px-12 lg:px-20 xl:px-30 z-10 bg-background">
+        <div className="mt-10 flex flex-col flex-1 z-10 bg-background/30 backdrop-blur-md w-full">
 
-            <div className="flex-center-between sticky top-0 z-20 bg-background py-4">
-                <h2 className="text-base font-semibold">درخواست ها</h2>
+            <div className="w-full px-4 sm:px-8 md:px-12 lg:px-20 xl:px-0 xl:max-w-6xl md:mx-auto flex-center-between sticky top-0 z-20 py-4 bg-background">
 
-                <label onClick={(e) => {
-                    e.stopPropagation()
-                    selectRef?.current?.click()
-                }} htmlFor="filter" className="flex-row-center gap-x-2 bg-muted text-sm px-4 py-1 rounded-full">
+                <Typography
+                    variant="h4"
+                    weight='semibold'
+                >
+                    درخواست ها
+                </Typography>
 
-                    <select ref={selectRef} className="appearance-none  focus:outline-0 focus:ring-0" name="filter" id="filter">
-                        <option value="">پربازدیدترین</option>
-                        <option value="">جدیدترین ها</option>
-                    </select>
-                    <ChevronDownIcon className="size-4" />
-                </label>
+                <SelectFilter type="request" />
             </div>
 
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 mt-4 z-10">
-                {fake_reqs.map((req, i) => (
-                    <RequestItem key={i} {...req} />
+            <div className="w-full px-4 sm:px-8 md:px-12 lg:px-20 xl:px-0 xl:max-w-6xl md:mx-auto grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mt-4 z-10">
+                {data?.map((item, i) => (
+                    <RequestItem key={i}
+                        request={item}
+                        isOwner={item.author_id === Number(user?.id)}
+                    />
                 ))}
 
 
             </div>
-            <Link href={"/requests"} className="mx-auto col-span-2 flex-row-center gap-x-2 px-4 py-2 rounded-full text-sm border border-muted text-foreground mt-8 hover:text-primary hover:border-primary hover:bg-primary/10 transition-colors duration-100 hover:outline-4 outline-primary/10">
-                <span>مشاهده همه</span>
-                <ArrowLeftIcon className="size-4" />
-            </Link>
+            {meta?.has_more_pages && (
+                <Button
+                    href={"/requests"}
+                    className="w-fit mx-auto mt-8"
+                    variant="outline-primary"
+                    size="md"
+                    leftIcon={<ArrowLeftIcon className="size-4" />}
+                >
+                    <Typography
+                        variant="caption"
+                    >
+                        مشاهده همه
+                    </Typography>
+                </Button>
+            )}
 
         </div>
     )

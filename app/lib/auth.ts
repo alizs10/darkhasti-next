@@ -1,9 +1,9 @@
-// auth.ts
-import NextAuth from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import axios from "@/app/lib/axios";   // adjust path as needed
+// lib/auth.ts
+import NextAuth from "next-auth"
+import CredentialsProvider from "next-auth/providers/credentials"
+import type { NextAuthConfig } from "next-auth"
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const authConfig: NextAuthConfig = {
     secret: process.env.NEXTAUTH_SECRET,
 
     session: {
@@ -17,53 +17,106 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     providers: [
         CredentialsProvider({
             name: "Credentials",
+
             credentials: {
-                username: { label: "Username", type: "text" },
-                password: { label: "Password", type: "password" },
+                username: {
+                    label: "Username",
+                    type: "text",
+                },
+                password: {
+                    label: "Password",
+                    type: "text",
+                },
             },
+
             async authorize(credentials) {
-                if (!credentials?.username || !credentials?.password) return null;
-
-                try {
-                    const res = await axios.post("/login", {
-                        username: credentials.username,
-                        password: credentials.password,
-                    });
-
-                    const data = res.data;
-
-                    if (res.status === 200 && data?.user) {
-                        return {
-                            id: data.user.id?.toString(),
-                            username: data.user.username,
-                            access_token: data.access_token,
-                        };
+                const res = await fetch(
+                    `${process.env.BACKEND_API_URL}/login`,
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            username: credentials?.username,
+                            password: credentials?.password,
+                        }),
                     }
-                } catch (error) {
-                    console.error("Auth error:", error);
+                );
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    throw new Error(
+                        data.message || "Login failed"
+                    );
                 }
-                return null;
-            },
+
+                return {
+                    id: data.data.user.id,
+                    username: data.data.user.username,
+                    accessToken: data.data.access_token,
+                    tokenType: data.data.token_type,
+                    expiresIn: Date.now() + data.data.expires_in * 1000,
+                };
+            }
         }),
     ],
 
     callbacks: {
         async jwt({ token, user }) {
+            // Initial login
             if (user) {
-                token.id = user.id;
-                token.username = user.username;
-                token.access_token = user.access_token;
+                return {
+                    ...token,
+                    id: user.id,
+                    username: user.username,
+                    accessToken: user.accessToken,
+                    tokenType: user.tokenType,
+                    expiresIn: user.expiresIn,
+                }
             }
-            return token;
+
+            // Check if access token is expired
+            const now = Date.now()
+            const isAccessValid = token.expiresIn && now < Number(token.expiresIn)
+
+            // If access token is expired, sign out the user
+            if (!isAccessValid) {
+                return {
+                    ...token,
+                    error: "TokenExpiredError",
+                }
+            }
+
+            return token
         },
 
         async session({ session, token }) {
-            if (token && session.user) {
-                session.user.id = token.id as string;
-                session.user.username = token.username as string;
-                (session as any).access_token = token.access_token; // or extend Session type
+            if (token.error === "TokenExpiredError") {
+                await signOut({ redirect: false })
+
+                return {
+                    ...session,
+                    user: undefined,
+                    accessToken: undefined,
+                    error: "TokenExpiredError",
+                }
             }
-            return session;
+
+            session.user = {
+                ...session.user,
+                id: token.id as string,
+                username: token.username as string,
+            }
+
+            session.accessToken = token.accessToken
+            session.tokenType = token.tokenType
+
+            return session
         },
     },
-});
+}
+
+// Export auth function and handlers using the config
+export const { handlers, auth, signIn, signOut } = NextAuth(authConfig)

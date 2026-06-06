@@ -1,42 +1,88 @@
 "use client"
 
-import { handleChangePassword } from '@/app/actions/auth';
+import { changePasswordReq } from '@/app/actions/auth';
 import { LockIcon } from 'lucide-react'
 import React, { ChangeEvent, useState } from 'react'
+import { Button } from '../common/Button';
+import { Typography } from '../common/Typography';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { changePasswordSchema } from '@/app/schemas/auth';
+import PasswordInput from '../Form/PasswordInput';
+import z from 'zod';
+import { toast } from 'sonner';
+import { logoutHandler } from './Logout';
+
+type ChangePasswordFormValues = z.infer<
+    typeof changePasswordSchema
+>
 
 export default function ChangePassword() {
 
-    const [password, setPassword] = useState('');
-    const [newPassword, setNewPassword] = useState('');
-    const [newPasswordConfirmation, setNewPasswordConfirmation] = useState('');
+    const [isLoading, setIsLoading] =
+        useState(false)
     const [error, setError] = useState<string | null>(null);
 
-    const handler = async (e: ChangeEvent) => {
-        e.preventDefault(); // Prevent default form submission behavior
-        setError(null); // Clear previous errors
+    const {
+        register,
+        watch,
+        handleSubmit,
+        formState: {
+            errors,
+            isValid,
+        },
+    } = useForm<ChangePasswordFormValues>({
+        resolver: zodResolver(changePasswordSchema),
+        mode: 'onChange',
+        defaultValues: {
+            password: '',
+            new_password: '',
+            new_password_confirmation: '',
+        },
+    })
 
-        try {
-            await handleChangePassword(
-                {
-                    current_password: password,
-                    new_password: newPassword,
-                    new_password_confirmation: newPasswordConfirmation,
-                }
-            );
 
-        } catch (error) {
+    const onSubmit = async (
+        data: ChangePasswordFormValues
+    ) => {
+        if (isLoading) return
 
-            setError("Something went wrong!")
+        setIsLoading(true)
 
+        const res = await changePasswordReq({
+            current_password: data.password,
+            new_password: data.new_password,
+            new_password_confirmation: data.new_password_confirmation
+        })
+
+        if (!res.success) {
+            toast.error(
+                res.error?.message
+            )
+
+            setIsLoading(false)
+            return
         }
 
+        toast.success(
+            'تغییر کلمه عبور با موفقیت انجام شد. لطفا دوباره وارد شوید.'
+        )
 
+        setTimeout(async () => {
+
+            await logoutHandler()
+
+        }, 1000)
 
     };
 
     return (
 
-        <form onSubmit={handler}>
+        <form
+            onSubmit={handleSubmit(
+                onSubmit
+            )}
+        >
 
             {error && (
                 <div className="text-red-500 text-sm text-center mb-2">{error}</div>
@@ -44,12 +90,13 @@ export default function ChangePassword() {
 
             <div className="mt-8 flex flex-col gap-y-2">
 
-                <h2 className="text-sm border-b border-muted pb-2">تغییر کلمه عبور</h2>
+                <Typography variant="body" weight="medium" className="border-b border-muted pb-2">
+                    تغییر کلمه عبور
+                </Typography>
+                <Typography variant="caption-xs" className="text-muted-foreground text-justify">توجه: امکان بازیابی کلمه عبور وجود ندارد.
+                </Typography>
 
-                <span className="text-xs text-muted-foreground text-justify leading-relaxed">توجه: امکان بازیابی کلمه عبور وجود ندارد. </span>
-
-
-                <input type="password"
+                {/* <input type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="کلمه عبور فعلی" className="border border-muted rounded-full px-4 py-2 focus:ring-0 focus:outline-0 text-sm text-foreground" />
@@ -60,12 +107,53 @@ export default function ChangePassword() {
                 <input type="password"
                     value={newPasswordConfirmation}
                     onChange={(e) => setNewPasswordConfirmation(e.target.value)}
-                    placeholder="تکرار کلمه عبور جدید" className="border border-muted rounded-full px-4 py-2 focus:ring-0 focus:outline-0 text-sm text-foreground" />
+                    placeholder="تکرار کلمه عبور جدید" className="border border-muted rounded-full px-4 py-2 focus:ring-0 focus:outline-0 text-sm text-foreground" /> */}
 
-                <button type='submit' className="flex-center gap-x-2 px-4 py-2 rounded-full text-sm border border-muted text-foreground hover:primary hover:border-primary hover:bg-primary/10 transition-colors duration-100 hover:outline-4 outline-primary/10">
-                    <LockIcon className="size-4" />
-                    <span>تغییر کلمه عبور</span>
-                </button>
+                <PasswordInput
+                    {...register('password')}
+
+                    placeholder="کلمه عبور فعلی"
+                    error={
+                        errors.password
+                            ?.message
+                    }
+                />
+                <PasswordInput
+                    {...register('new_password')}
+
+                    placeholder="کلمه عبور جدید"
+                    error={
+                        errors.new_password
+                            ?.message
+                    }
+                />
+
+                <PasswordInput
+                    {...register('new_password_confirmation')}
+                    placeholder="تکرار کلمه عبور جدید"
+                    error={
+                        errors
+                            .new_password_confirmation
+                            ?.message
+                    }
+                />
+
+
+                <Button
+                    disabled={
+                        isLoading ||
+                        !isValid
+                    }
+                    type='submit'
+                    className=""
+                    variant="outline-primary"
+                    size="sm"
+                    rightIcon={<LockIcon className="size-4" />}
+                >
+                    <Typography variant="caption-xs" weight="medium">
+                        تغییر کلمه عبور
+                    </Typography>
+                </Button>
             </div>
         </form>
 

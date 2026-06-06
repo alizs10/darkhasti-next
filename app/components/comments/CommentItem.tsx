@@ -1,73 +1,131 @@
-import { CpuIcon, CupSodaIcon, FileIcon, MedalIcon, MessageCircleCheck, MessageCircleCheckIcon, MessagesSquareIcon, ReplyIcon, ThumbsDownIcon, ThumbsUpIcon, UserIcon } from 'lucide-react'
+"use client"
+
+import momentFa from '@/app/lib/moment';
+import { Comment } from '@/app/types';
+import { MessageCircleCheckIcon, User2Icon } from 'lucide-react'
 import Link from 'next/link'
-import React from 'react'
+import CommentItemButtons from './CommentItemButtons';
+import { Session } from 'next-auth';
+import AttachedFiles from '../common/attach-files/AttachedFiles';
+import EditButton from '../common/EditButton';
+import { Typography } from '../common/Typography';
+import DeleteCommentButton from '../common/DeleteCommentButton';
+import { useComments } from '@/app/context/CommentsContext';
+import ToggleChosenAnswerButton from './ToggleChosenAnswerButton';
 
-export default function CommentItem() {
+interface CommentItem extends Comment {
+  editable?: boolean;
+}
+
+interface CommentItemProps {
+  comment: CommentItem
+  commentable_id: string | number;
+  commentable: "comment" | "request";
+  user: Partial<Session>['user']
+  isOwner?: boolean;
+}
+
+export default function CommentItem({ commentable_id, commentable, comment, user, isOwner }: CommentItemProps) {
+
+  const { request_author_id } = useComments()
+
+
+
+
   return (
-    <Link href={"/comment/123123"} className='flex flex-col rounded-xl bg-muted p-4'>
+    <Link href={`/comment/${comment.id}`} className='flex flex-col rounded-2xl bg-secondary p-4'>
 
-      <div className="w-full flex-center-between text-xs text-muted-foreground">
-        <div className="flex-row-center gap-x-1">
-          <UserIcon className='size-3.5' />
-          <span className='font-semibold'>aure10</span>
-        </div>
+
+
+      <div className="flex justify-between items-start">
+
         <div className="flex-row-center gap-x-2">
-          <div className="px-3 py-1 rounded-full text-xs bg-success/10 text-success flex-row-center gap-x-1">
-            <MessageCircleCheck className='size-3.5' />
-            <span>
-              پاسخ برگزیده
-            </span>
+
+
+          <div className="size-10 rounded-full bg-secondary flex-center">
+            <User2Icon className='size-6 text-muted-foreground' />
           </div>
 
-          <span>1 روز پیش</span>
+
+          <div className="flex flex-col">
+
+
+
+            <Typography
+              variant="caption"
+              weight='medium'
+            >
+              {comment.author?.username}
+            </Typography>
+
+            <div className="flex-row-center gap-x-3">
+
+
+              <Typography
+                className='text-muted-foreground'
+                variant="caption-xs"
+              >
+                {momentFa(new Date(comment.created_at)).fromNow()}
+              </Typography>
+
+            </div>
+          </div>
+
+
         </div>
-      </div>
 
-      <p className='mt-2 text-sm leading-relaxed text-justify'>
-        لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ، و با استفاده از طراحان گرافیک است، چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است، و برای شرایط فعلی تکنولوژی مورد نیاز، و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد، کتابهای زیادی در شصت و سه درصد گذشته حال و آینده، شناخت فراوان جامعه و متخصصان را می طلبد، تا با نرم افزارها شناخت بیشتری را برای طراحان رایانه ای علی الخصوص طراحان خلاقی، و فرهنگ پیشرو در زبان فارسی ایجاد کرد، در این صورت می توان امید داشت که تمام و دشواری موجود در ارائه راهکارها، و شرایط سخت تایپ به پایان رسد و زمان مورد نیاز شامل حروفچینی دستاوردهای اصلی، و جوابگوی سوالات پیوسته اهل دنیای موجود طراحی اساسا مورد استفاده قرار گیرد.
-      </p>
-
-      <div className="mt-2 bg-background/50 rounded-xl gap-1 px-3 py-2 flex flex-col gap-y-2">
-        <h3 className='text-xs text-muted-foreground font-semibold'>فایل های ضمیمه شده</h3>
-
-
-
-        <div className="flex flex-wrap gap-1">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <button key={i} className="bg-muted px-3 py-0.5 rounded-full flex-row-center gap-x-2">
-              <span className='text-xs font-sans leading-relaxed'>file.txt</span>
-              <FileIcon className='size-3.5' />
-            </button>
-          ))}
-        </div>
-      </div>
-
-
-      <div className="flex-center-between mt-4">
 
         <div className="flex-row-center gap-x-3">
-          <button className="rounded-full flex-row-center gap-x-1.5">
-            <ThumbsUpIcon className='size-3.5' />
-            <span className='text-xs font-sans leading-relaxed'>15</span>
-          </button>
-          <button className="rounded-full flex-row-center gap-x-1.5">
-            <ThumbsDownIcon className='size-3.5' />
-            <span className='text-xs font-sans leading-relaxed'>15</span>
-          </button>
 
-          <button className="rounded-full flex-row-center gap-x-1.5">
-            <MessagesSquareIcon className='size-3.5' />
-            <span className='text-xs font-sans leading-relaxed'>2</span>
-          </button>
+
+
+
+          {comment.is_chosen_answer && (
+            <div className="flex-row-center gap-x-1 text-success">
+              <MessageCircleCheckIcon className="size-3" />
+
+              <Typography
+                className='text-success'
+                variant="caption-xs"
+              >
+                پاسخ برگزیده
+              </Typography>
+            </div>
+          )}
+
+          {request_author_id === Number(user?.id) && (
+            <ToggleChosenAnswerButton
+              comment_id={comment.id}
+              value={comment.is_chosen_answer}
+            />
+          )}
+
+          {isOwner && (
+            <>
+              <DeleteCommentButton comment_id={comment.id} title={comment.body} />
+              <EditButton url={`/my/comments/${comment.id}`} />
+            </>
+          )}
         </div>
 
-
-        <button className="rounded-full flex-row-center gap-x-1.5">
-          <ReplyIcon className='size-3.5' />
-          <span className='text-xs font-sans leading-relaxed'>پاسخ</span>
-        </button>
-
       </div>
+      <Typography
+        className='mt-4 mb-8 text-justify line-clamp-3 text-ellipsis'
+        variant="body-sm"
+      >
+        {comment.body}
+      </Typography>
+
+      {comment?.attached_files?.length > 0 ? (<AttachedFiles theme='default' files={comment.attached_files} />) : null}
+
+
+      <CommentItemButtons
+        commentable={commentable}
+        commentable_id={commentable_id}
+        comment_id={comment.id} auth_required={!user} dislikes_count={comment.dislikes_count} likes_count={comment.likes_count}
+        replies_count={comment.replies_count}
+        user_vote={comment.user_vote_status}
+      />
 
 
 

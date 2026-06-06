@@ -1,13 +1,17 @@
-import { handleLogout } from "@/app/actions/auth";
-import { LockIcon, LogOutIcon, TrashIcon, UserPenIcon } from "lucide-react";
+// import { handleLogout } from "@/app/actions/auth";
+import { LogOutIcon, TrashIcon } from "lucide-react";
 import Link from "next/link";
 import Username from "./Username";
-import { auth } from "@/app/lib/auth";
-import axios from "@/app/lib/axios";
 import ChangePassword from "./ChangePassword";
+import axiosServer from "@/app/lib/axios-server";
+import { ApiResponse } from "@/app/types";
+import { auth } from "@/app/lib/auth";
+import Logout from "./Logout";
+import DeleteAcc from "./DeleteAcc";
+import { Button } from "../common/Button";
+import { Typography } from "../common/Typography";
 
-interface IProfileStats {
-    message: string;
+interface ProfileResponse {
     stats: {
         requests_count: number;
         comments_count: number;
@@ -17,49 +21,94 @@ interface IProfileStats {
 
 async function getUserStats() {
     try {
-        const result = await axios.get<IProfileStats>("/profile/stats")
+        const result = await axiosServer.get<ApiResponse<ProfileResponse>>("/profile/stats")
 
-        return result.data.stats;
+        console.log(result)
+
+        return result.data?.data?.stats;
 
     } catch (error) {
         console.log(error)
     }
 }
 
+
 export default async function Profile() {
 
-    const session = await auth()
     const stats = await getUserStats()
+
+    if (!stats) {
+        return null;
+    }
+
+
+    const session = await auth()
+    if (!session?.user) {
+        return null
+    }
+    const { user } = session;
+
+
+
 
     return (
         <div className='py-10 flex flex-col px-4 sm:px-8 md:px-12 lg:px-20 xl:px-30 max-w-6xl md:mx-auto flex-1 w-full'>
 
             <div className="flex-center-between">
-                <h2 className="text-base font-semibold">پروفایل کاربری شما</h2>
 
+                <Typography variant="h4" className="">
+                    پروفایل کاربری شما
+                </Typography>
 
-                <Link href={"/my/requests"} className="flex-center gap-x-2 px-4 py-2 rounded-full text-sm border border-muted text-foreground hover:primary hover:border-primary hover:bg-primary/10 transition-colors duration-100 hover:outline-4 outline-primary/10">
-                    <span>درخواست های من</span>
-                </Link>
+                <Button
+                    href={"/my/requests"}
+                    className=""
+                    variant="outline-primary"
+                    size="sm"
+
+                >
+                    <Typography variant="caption">
+                        درخواست های من
+                    </Typography>
+                </Button>
+
             </div>
 
 
             {/* stats */}
             <div className="mt-8 flex flex-col gap-y-2">
-                <h2 className="text-sm border-b border-muted pb-2">آمار حساب کاربری</h2>
-                <div className="bg-muted rounded-3xl flex flex-nowrap divide-x divide-muted-foreground/10">
+                <Typography variant="body" weight="medium" className="border-b border-muted pb-2">
+                    آمار حساب کاربری
+                </Typography>
+                <div className="bg-secondary rounded-3xl flex flex-nowrap divide-x divide-muted-foreground/10">
 
                     <div className="flex-1 px-2 flex-center flex-col gap-y-4 py-6">
-                        <span className="text-xs text-nowrap">درخواست ها</span>
-                        <span className="text-3xl font-bold">{stats?.requests_count ?? "خطا"}</span>
+                        <Typography variant="caption-xs">
+                            درخواست ها
+                        </Typography>
+
+                        <Typography variant="display">
+                            {stats?.requests_count ?? "خطا"}
+                        </Typography>
+
                     </div>
                     <div className="flex-1 flex-center flex-col gap-y-4 py-6">
-                        <span className="text-xs text-nowrap">پاسخ ها</span>
-                        <span className="text-3xl font-bold">{stats?.comments_count ?? "خطا"}</span>
+                        <Typography variant="caption-xs">
+                            پاسخ ها
+                        </Typography>
+
+                        <Typography variant="display">
+                            {stats?.comments_count ?? "خطا"}
+                        </Typography>
                     </div>
                     <div className="flex-1 px-2 flex-center flex-col gap-y-4 py-6">
-                        <span className="text-xs text-nowrap">پاسخ های منتخب</span>
-                        <span className="text-3xl font-bold">{stats?.chosen_comments_count ?? "خطا"}</span>
+                        <Typography variant="caption-xs">
+                            پاسخ های منتخب
+                        </Typography>
+
+                        <Typography variant="display">
+                            {stats?.chosen_comments_count ?? "خطا"}
+                        </Typography>
                     </div>
 
 
@@ -68,39 +117,18 @@ export default async function Profile() {
             </div>
 
             {/* username */}
-            <Username current_username={session?.user.username} />
+            <Username current_username={user?.username ?? ""} />
 
             {/* change password */}
             <ChangePassword />
 
 
             {/* delete account */}
-            <div className="mt-8 flex flex-col gap-y-2">
-
-                <h2 className="text-sm border-b border-muted pb-2">حذف حساب کاربری</h2>
-                <span className="text-xs text-muted-foreground text-justify leading-relaxed">با حذف حساب کاربری تمامی اطلاعات شما(درخواست ها، پاسخ ها) از بین خواهد رفت و قابل برگشت نخواهد بود.</span>
-
-
-                <button className="flex-center gap-x-2 px-4 py-2 rounded-full text-sm border border-muted text-foreground hover:destructive hover:border-destructive hover:bg-destructive/10 transition-colors duration-100 hover:outline-4 outline-destructive/10">
-                    <TrashIcon className="size-4" />
-                    <span>حذف حساب کاربری</span>
-                </button>
-
-            </div>
+            <DeleteAcc />
 
 
             {/* logout */}
-            <div className="mt-8 flex flex-col gap-y-2">
-
-                <h2 className="text-sm border-b border-muted pb-2">خروج از حساب کاربری</h2>
-                <span className="text-xs text-muted-foreground text-justify leading-relaxed">با توجه به اینکه کلمه عبور قابل بازیابی نیست، پس درصورتیکه کلمه عبور خود را فراموش کرده باشید و از حساب کاربری خود خارج شوید، دیگر قادر به ورود به آن نخواهید بود.</span>
-
-                <button onClick={handleLogout} className="flex-center gap-x-2 px-4 py-2 rounded-full text-sm border border-muted text-foreground hover:destructive hover:border-destructive hover:bg-destructive/10 transition-colors duration-100 hover:outline-4 outline-destructive/10">
-                    <LogOutIcon className="size-4" />
-                    <span>خروج از حساب کاربری</span>
-                </button>
-
-            </div>
+            <Logout />
 
 
         </div>

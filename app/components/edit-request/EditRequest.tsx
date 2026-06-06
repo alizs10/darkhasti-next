@@ -1,64 +1,158 @@
-import { FileIcon, FilePlusIcon, MoveRightIcon, PenIcon, SaveIcon, TrashIcon } from 'lucide-react'
-import Link from 'next/link'
+"use client";
 
-export default function EditRequest() {
+import { useAttachedFiles } from "@/app/context/AttachedFilesContext";
+import { Request } from "@/app/types";
+import { RefreshCcwIcon } from "lucide-react";
+import { useEffect, useMemo } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import MyAttachedFiles from "../common/attach-files/MyAttachedFiles";
+import { updateRequest } from "@/app/actions/request";
+import { useRouter, useSearchParams } from "next/navigation";
+import { CheckboxInput } from "../Form/CheckboxInput";
+import { Button } from "../common/Button";
+import { Typography } from "../common/Typography";
+import { updateRequestSchema } from "@/app/schemas/request";
+import { toast } from "sonner";
+import TextInput from "../Form/TextInput";
+import TextareaInput from "../Form/TextareaInput";
+
+type FormData = z.infer<typeof updateRequestSchema>;
+
+interface EditRequestProps {
+    request: Request;
+}
+
+export default function EditRequest({ request }: EditRequestProps) {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const back_url = searchParams.get("back_url") ?? "/";
+
+    const {
+        isUploading: isAttachedFilesUploading,
+        isLoading: isAttachedFilesLoading,
+        myTemps,
+        permanents,
+        addPermanentFiles,
+    } = useAttachedFiles();
+
+    const {
+        register,
+        handleSubmit,
+        formState: { errors, isValid, isSubmitting },
+        setValue
+    } = useForm<FormData>({
+        resolver: zodResolver(updateRequestSchema),
+        mode: "onChange",
+        defaultValues: {
+            title: request.title,
+            description: request.description,
+            save_as_draft: request.published_at === null,
+            temp_files: [],
+            deleted_main_files: [],
+        },
+    });
+
+    // Load existing attached files into the context (permanents)
+    useEffect(() => {
+        if (request.attached_files.length > 0) {
+            addPermanentFiles(request.attached_files);
+        }
+    }, [request.attached_files, addPermanentFiles]);
+
+    // Sync temp_files (newly uploaded files) from context to form
+    useEffect(() => {
+        const attachedFilesIds = myTemps.map((tf) => tf.id.toString());
+        setValue("temp_files", attachedFilesIds, { shouldValidate: true });
+    }, [myTemps, setValue]);
+
+    // Sync deleted_main_files (permanents marked as deleted) from context to form
+    useEffect(() => {
+        const deletedPermanentFilesIds = permanents
+            .filter((pf) => pf?.status === "deleted")
+            .map((pf) => pf.id.toString());
+        setValue("deleted_main_files", deletedPermanentFilesIds, {
+            shouldValidate: true,
+        });
+    }, [permanents, setValue]);
+
+    const isLoading = useMemo(() => {
+        return isAttachedFilesLoading || isAttachedFilesUploading || isSubmitting;
+    }, [isAttachedFilesLoading, isAttachedFilesUploading, isSubmitting]);
+
+    const onSubmit = async (data: FormData) => {
+        if (isLoading) return;
+
+        try {
+            await updateRequest(request.id, {
+                title: data.title,
+                description: data.description,
+                deleted_main_files: data.deleted_main_files,
+                temp_files: data.temp_files,
+                save_as_draft: data.save_as_draft,
+            });
+
+            router.push(back_url);
+        } catch (error) {
+            console.error(error);
+            toast.error("خطا در بروزرسانی درخواست، لطفا دوباره تلاش کنید");
+        }
+    };
+
     return (
-        <div className='py-10 flex flex-col px-4 sm:px-8 md:px-12 lg:px-20 xl:px-30 max-w-6xl md:mx-auto flex-1 w-full'>
+        <div className="py-10 flex flex-col px-4 sm:px-8 md:px-12 lg:px-20 xl:px-30 max-w-6xl md:mx-auto flex-1 w-full">
 
-            <Link href={"/"} className="rounded-full flex-row-center text-muted-foreground gap-x-1.5">
-                <MoveRightIcon className='size-4' />
-                <span className='text-sm leading-relaxed'>بازگشت</span>
-            </Link>
 
-            <h2 className='mt-4 font-semibold text-foreground text-base'>ویرایش درخواست</h2>
+            <Typography variant="h4" className="">
+                ویرایش درخواست
+            </Typography>
 
-            <form action="">
-
+            <form onSubmit={handleSubmit(onSubmit)}>
                 <div className="flex flex-col py-4 gap-y-2 border-b border-muted">
+                    <TextInput
+                        {...register("title")}
+                        placeholder="عنوان"
+                        error={errors.title?.message}
+                    />
 
-                    <input type="text" placeholder="عنوان" className="border border-muted rounded-full px-4 py-2 focus:ring-0 focus:outline-0 text-sm text-foreground" />
-
-                    <textarea name="" id="" placeholder="توضیحات"
+                    <TextareaInput
+                        {...register("description")}
+                        placeholder="توضیحات"
                         rows={10}
+                        error={errors.description?.message}
+                    />
 
-                        className='border resize-none border-muted rounded-3xl px-4 py-2 focus:ring-0 focus:outline-0 text-sm text-foreground' />
+                    <MyAttachedFiles attachableType="request" />
 
-                    <div className="mt-2 bg-muted rounded-2xl gap-1 px-4 py-2 flex flex-col gap-y-2">
-                        <h3 className='text-sm text-muted-foreground font-semibold'>فایل های ضمیمه شده</h3>
+                    {errors.temp_files && (
+                        <Typography variant="caption" className="text-destructive">
+                            {errors.temp_files.message}
+                        </Typography>
+                    )}
 
-
-
-                        <div className="flex flex-wrap gap-1">
-                            {Array.from({ length: 4 }).map((_, i) => (
-                                <div key={i} className='bg-background flex-row-center p-1 rounded-full gap-x-1'>
-                                    <div className="p-2 bg-muted px-4 py-1 rounded-full flex-row-center gap-x-2">
-                                        <span className='text-sm font-sans leading-relaxed'>file.txt</span>
-                                        <FileIcon className='size-4' />
-                                    </div>
-
-                                    <button className='text-destructive p-2 rounded-full aspect-square bg-destructive/10'>
-                                        <TrashIcon className='size-4' />
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
+                    <div className="mt-4">
+                        <CheckboxInput
+                            {...register("save_as_draft")}
+                            label="ذخیره در پیش نویس ها"
+                        />
                     </div>
-
                 </div>
 
-
-                <div className="flex-row-center gap-x-2 pt-4 max-w-md mr-auto">
-                    <button className="flex-1 flex-center gap-x-2 px-4 py-2 rounded-full text-sm border border-warning text-warning hover:bg-warning/10 transition-colors duration-100 hover:outline-4 outline-warning/10">
-                        <SaveIcon className="size-4" />
-                        <span className='text-nowrap'>ذخیره در پیش نویس ها</span>
-                    </button>
-                    <button className="flex-1 flex-center gap-x-2 px-4 py-2 rounded-full text-sm border border-primary text-primary hover:bg-primary/10 transition-colors duration-100 hover:outline-4 outline-primary/10">
-                        <PenIcon className="size-4" />
-                        <span>ویرایش</span>
-                    </button>
+                <div className="flex-row-center gap-x-2 pt-4 mr-auto justify-end">
+                    <Button
+                        rightIcon={<RefreshCcwIcon className="size-4" />}
+                        variant="outline-primary"
+                        size="md"
+                        disabled={isLoading || !isValid}
+                        type="submit"
+                    >
+                        <Typography variant="caption" weight="medium">
+                            بروزرسانی درخواست
+                        </Typography>
+                    </Button>
                 </div>
             </form>
-
         </div>
-    )
+    );
 }

@@ -1,5 +1,6 @@
 import { ArrowLeftIcon, MoveLeft } from "lucide-react";
 import AuthForm from "./AuthForm";
+import { Typography } from "../common/Typography";
 
 export default function Auth() {
     return (
@@ -7,7 +8,12 @@ export default function Auth() {
         <div className="flex flex-col gap-y-6">
             <AuthForm />
 
-            <span className="text-xs text-muted-foreground leading-relaxed px-4 text-center">توجه: امکان بازیابی کلمه عبور وجود ندارد. درصورت فراموش کردن کلمه عبور خود باید حساب کاربری دیگری بسازید.</span>
+            <Typography
+                variant="caption-xs"
+                className="text-muted-foreground px-4"
+            >
+                توجه: امکان بازیابی کلمه عبور وجود ندارد. درصورت فراموش کردن کلمه عبور خود باید حساب کاربری دیگری بسازید.
+            </Typography>
         </div>
     )
 }

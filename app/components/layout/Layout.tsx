@@ -1,6 +1,7 @@
 import React from 'react'
 import Header from './Header'
 import Footer from './Footer'
+import MyToaster from '../common/MyToaster'
 
 export default function Layout({ children }: { children: React.ReactNode }) {
     return (
@@ -8,6 +9,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <Header />
             {children}
             <Footer />
+
+            <MyToaster />
         </div>
     )
 }

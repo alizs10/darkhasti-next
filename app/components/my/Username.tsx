@@ -2,23 +2,106 @@
 
 import { UserPenIcon } from "lucide-react"
 import { useState } from "react"
+import { Button } from "../common/Button"
+import { Typography } from "../common/Typography"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { changeUsernameSchema } from "@/app/schemas/auth"
+import TextInput from "../Form/TextInput"
+import z from "zod"
+import { toast } from "sonner"
+import { changeUsernameReq } from "@/app/actions/profile"
+import { logoutHandler } from "./Logout"
+
+type ChangeUsernameFormValues = z.infer<
+    typeof changeUsernameSchema
+>
 
 export default function Username({ current_username }: { current_username?: string }) {
+    const [isLoading, setIsLoading] =
+        useState(false)
+    const {
+        register,
+        handleSubmit,
+        formState: {
+            errors,
+            isValid,
+        },
+    } = useForm<ChangeUsernameFormValues>({
+        resolver: zodResolver(
+            changeUsernameSchema
+        ),
+        mode: 'onChange',
+        defaultValues: {
+            username: current_username,
+        },
+    })
 
-    const [username, setUsername] = useState(current_username)
 
+    const onSubmit = async (
+        data: ChangeUsernameFormValues
+    ) => {
+        if (isLoading) return
+
+        setIsLoading(true)
+
+        const res = await changeUsernameReq({
+            username: data.username
+        })
+
+        if (!res.data) {
+            toast.error(
+                res.error?.message
+            )
+
+            setIsLoading(false)
+            return
+        }
+
+        toast.success(
+            'تغییر نام کاربری با موفقیت انجام شد. لطفا دوباره وارد شوید.'
+        )
+
+        setTimeout(async () => {
+
+            await logoutHandler()
+
+        }, 1000)
+
+    }
 
     return (
-        <div className="mt-8 flex flex-col gap-y-2">
+        <form onSubmit={handleSubmit(
+            onSubmit
+        )}
+        >
 
-            <h2 className="text-sm border-b border-muted pb-2">نام کاربری</h2>
-            <input type="email" value={username}
-                onChange={(e) => setUsername(e.target.value)} placeholder="نام کاربری" className="border border-muted rounded-full px-4 py-2 focus:ring-0 focus:outline-0 text-sm text-foreground" />
-
-            <button className="flex-center gap-x-2 px-4 py-2 rounded-full text-sm border border-muted text-foreground hover:primary hover:border-primary hover:bg-primary/10 transition-colors duration-100 hover:outline-4 outline-primary/10">
-                <UserPenIcon className="size-4" />
-                <span>تغییر نام کاربری</span>
-            </button>
-        </div>
+            <div className="mt-8 flex flex-col gap-y-2">
+                <Typography variant="body" weight="medium" className="border-b border-muted pb-2">
+                    نام کاربری
+                </Typography>
+                <TextInput
+                    {...register('username')}
+                    placeholder="نام کاربری"
+                    error={
+                        errors.username
+                            ?.message
+                    }
+                />
+                <Button
+                    disabled={
+                        isLoading ||
+                        !isValid
+                    }
+                    type='submit'
+                    className=""
+                    variant="outline-primary"
+                    size="sm"
+                    rightIcon={<UserPenIcon className="size-4" />}
+                >
+                    <span>تغییر نام کاربری</span>
+                </Button>
+            </div>
+        </form>
     )
 }

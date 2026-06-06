@@ -1,5 +1,5 @@
-import { auth } from "@/app/lib/auth";
-import { redirect } from "next/navigation";
+// import { auth } from "@/app/lib/auth";
+// import { redirect } from "next/navigation";
 
 export default async function ProtectedLayout({
     children,
@@ -7,11 +7,11 @@ export default async function ProtectedLayout({
     children: React.ReactNode;
 }>) {
 
-    const session = await auth()
+    // const session = await auth()
 
-    if (!session) {
-        redirect("/auth")
-    }
+    // if (!session) {
+    //     redirect("/auth")
+    // }
 
 
     return (

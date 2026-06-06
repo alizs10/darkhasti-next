@@ -1,49 +1,141 @@
-import { MessageCircleCheckIcon, MessagesSquareIcon, PenIcon, TrendingUpIcon } from 'lucide-react'
+import { MessageCircleCheckIcon, MessagesSquareIcon, PenIcon, SaveIcon, ThumbsUpIcon, TrendingUpIcon, User2Icon, UserIcon } from 'lucide-react'
 import Link from 'next/link'
+import momentFa from "@/app/lib/moment"
+import EditButton from '../common/EditButton';
+import { Request } from '@/app/types';
+import { Typography } from '../common/Typography';
+import DeleteRequestButton from '../common/DeleteRequestButton';
+import DeleteRequestDetailsButton from '../common/DeleteRequestDetailsButton';
 
 
 interface RequestItemProps {
-    slug: string;
-    title: string;
-    description: string;
-    is_answered: boolean;
-    comments_count: number;
-    visits_count: number;
-    editable?: boolean;
+    request: Request;
+    isInContext?: boolean;
+    isOwner?: boolean;
 }
 
-export default function RequestItem({ slug, title, description, is_answered, comments_count, visits_count, editable = false }: RequestItemProps) {
+export default function RequestItem({ request, isOwner = false, isInContext = false }: RequestItemProps) {
+
     return (
-        <Link href={`/requests/${slug}`} className="col-span-1 h-fit flex flex-col bg-muted rounded-3xl p-4">
-            <div className="flex flex-row justify-between">
-                <span className="text-sm font-semibold text-foreground">{title}</span>
+        <Link href={`/requests/${request.id}`} className="col-span-1 h-68 flex flex-col bg-secondary rounded-2xl p-4">
 
-                {editable && (
-                    <Link href={`/my/requests/${slug}/edit`} className="flex-row-center gap-x-2 px-3 py-1 rounded-full text-xs border border-muted-foreground text-foreground hover:text-warning hover:border-warning hover:bg-warning/10 transition-colors duration-100 hover:outline-4 outline-warning/10">
-                        <PenIcon className="size-3" />
-                        <span>ویرایش</span>
-                    </Link>
-                )}
-            </div>
+            <div className="flex justify-between items-start">
 
-            <p className="text-xs leading-relaxed mt-4 text-justify line-clamp-3 text-ellipsis">{description}</p>
+                <div className="flex-row-center gap-x-2">
 
-            <div className="mt-4">
-                <div className="mt-auto rounded-full flex-row-center gap-x-1">
 
-                    {is_answered && (
-                        <div className="h-6 bg-background/50 rounded-full px-4 flex-row-center gap-x-1 text-success">
-                            <MessageCircleCheckIcon className="size-3.5" />
-                            <span className="text-xs text-nowrap sm:hidden md:block">پاسخ داده شده</span>
+                    <div className="size-10 rounded-full bg-muted flex-center">
+                        <User2Icon className='size-6 text-muted-foreground' />
+                    </div>
+
+
+                    <div className="flex flex-col">
+
+                        <Typography
+                            variant="caption"
+                            weight='medium'
+                        >
+                            {request.author?.username}
+                        </Typography>
+                        <Typography
+                            className='text-muted-foreground'
+                            variant="caption-xs"
+                        >
+                            {momentFa(new Date(request.published_at ?? request.created_at)).fromNow()}
+                        </Typography>
+
+                    </div>
+
+
+                </div>
+
+
+                <div className="flex-row-center gap-x-3">
+
+
+
+
+                    {request.is_answered && (
+                        <div className="flex-row-center gap-x-1 text-success">
+                            <MessageCircleCheckIcon className="size-3" />
+                            <Typography
+                                className='text-success'
+                                variant="caption-xs"
+                            >
+                                پاسخ داده شده
+                            </Typography>
                         </div>
                     )}
-                    <div className="h-6 bg-background/50 rounded-full px-4 flex-row-center gap-x-1 text-warning">
-                        <MessagesSquareIcon className="size-3.5" />
-                        <span className="text-xs">{comments_count}</span>
+                    {request.published_at === null && (
+                        <div className="flex-row-center gap-x-1 text-warning">
+                            <SaveIcon className="size-3" />
+                            <Typography
+                                className='text-warning'
+                                variant="caption-xs"
+                            >
+                                پیش نویس
+                            </Typography>
+                        </div>
+                    )}
+
+                    {isOwner && (
+                        <>
+                            {isInContext ? (<DeleteRequestButton request_id={request.id} title={request.title} />) : (
+                                <DeleteRequestDetailsButton request_id={request.id} title={request.title} back_url={"/my/requests"} />
+                            )}
+                            <EditButton url={`/my/requests/${request.id}`} />
+                        </>
+                    )}
+                </div>
+            </div>
+
+
+
+            <Typography
+                className='mt-4 line-clamp-2'
+                variant="label"
+                weight='semibold'
+            >
+                {request.title}
+            </Typography>
+
+            <Typography
+                className='mt-4 mb-8 text-justify line-clamp-3 text-ellipsis'
+                variant="body-sm"
+            >
+                {request.description}
+            </Typography>
+
+
+            <div className="mt-auto mr-auto">
+                <div className="mt-auto rounded-full flex flex-wrap items-center gap-3">
+
+
+                    <div className="flex-row-center gap-x-1 text-foreground">
+                        <ThumbsUpIcon className="size-3" />
+                        <Typography
+                            className=''
+                            variant="caption-xs"
+                        >
+                            {request.likes_count}
+                        </Typography>
                     </div>
-                    <div className="h-6 bg-background/50 rounded-full px-4 flex-row-center gap-x-1 text-primary">
-                        <TrendingUpIcon className="size-3.5" />
-                        <span className="text-xs">{visits_count}</span>
+                    <div className="flex-row-center gap-x-1 text-foreground">
+                        <MessagesSquareIcon className="size-3" />
+                        <Typography
+                            className=''
+                            variant="caption-xs"
+                        >
+                            {request.replies_count}
+                        </Typography>
+                    </div>
+                    <div className="flex-row-center gap-x-1 text-foreground">
+                        <TrendingUpIcon className="size-3" />
+                        <Typography
+                            variant="caption-xs"
+                        >
+                            {request.visits_count}
+                        </Typography>
                     </div>
 
                 </div>

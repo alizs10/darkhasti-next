@@ -3,12 +3,19 @@
 import { Moon, SunDim } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import { Button } from "./Button";
 
 function ThemeToggleSkeleton() {
     return (
-        <div className="p-3 rounded-full text-foreground hover:bg-muted">
+
+        <Button
+            className="aspect-square p-0!"
+            variant="ghost"
+            size="md"
+
+        >
             <div className="w-6 min-w-6 aspect-square animate-pulse bg-muted rounded-xl" />
-        </div>
+        </Button>
     )
 }
 
@@ -31,16 +38,18 @@ function ThemeToggle() {
     }
 
     return (
-        <button
+        <Button
             onClick={toggleTheme}
-            className="p-2 rounded-full text-foreground hover:bg-muted"
+            className="aspect-square p-0!"
+            variant="ghost"
+            size="md"
             aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
         >
             {theme === 'light' ?
                 <SunDim className="size-6" aria-hidden="true" /> :
                 <Moon className="size-6" aria-hidden="true" />
             }
-        </button>
+        </Button>
     );
 }
 

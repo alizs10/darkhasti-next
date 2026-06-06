@@ -1,142 +1,168 @@
-import { ArrowDownIcon, CalendarIcon, ChevronDownIcon, FileIcon, FilePlusIcon, MessagesSquareIcon, MoveRightIcon, ReplyIcon, SendIcon, ThumbsDownIcon, ThumbsUpIcon, UserIcon } from 'lucide-react'
-import React from 'react'
-import CommentItem from '../comments/CommentItem'
-import Link from 'next/link'
+import { CalendarIcon, FileIcon, MessageCircleCheckIcon, SaveIcon, User2Icon, UserIcon } from 'lucide-react'
+import Comments from '../comments/Comments';
+import { CommentOrder, Request } from '@/app/types';
+import { auth } from '@/app/lib/auth';
+import BackButton from '../common/BackButton';
+import momentFa from '@/app/lib/moment';
+import RequestDetailsButtons from './RequestDetailsButtons';
+import ReplyButton from '../common/ReplyButton';
+import { AuthRequiredProvider } from '@/app/context/AuthRequiredContext';
+import FileItem from '../common/attach-files/FileItem';
+import AttachedFiles from '../common/attach-files/AttachedFiles';
+import EditButton from '../common/EditButton';
+import { Typography } from '../common/Typography';
+import DeleteRequestDetailsButton from '../common/DeleteRequestDetailsButton';
 
-export default function RequestDetails() {
+interface RequestDetailsProps {
+    data: Request;
+    order: CommentOrder
+}
+
+
+export default async function RequestDetails({ data, order }: RequestDetailsProps) {
+    const session = await auth()
+    const auth_required = !session?.user
+
     return (
-        <div className='py-10 flex flex-col px-4 sm:px-8 md:px-12 lg:px-20 xl:px-30 max-w-6xl md:mx-auto flex-1 w-full'>
+        <div className='flex flex-col flex-1 w-full px-4 sm:px-8 md:px-12 lg:px-20 xl:px-0 xl:max-w-6xl md:mx-auto py-10'>
 
-            <Link href={"/"} className="rounded-full flex-row-center text-muted-foreground gap-x-1.5">
-                <MoveRightIcon className='size-4' />
-                <span className='text-sm leading-relaxed'>بازگشت</span>
-            </Link>
+            <BackButton url={`/`} />
 
-            <h2 className='mt-4 font-semibold text-foreground text-base'><span className='text-muted-foreground'>درخواست:‌</span> عنوان درخواست باز شده</h2>
+            <div className="w-full flex flex-col">
+                <Typography
+                    className='mt-10'
+                    variant="body"
+                    weight='medium'
+                >
+                    درخواست
+                </Typography>
 
-            <div className="w-fit mt-2 divide-x divide-muted-foreground/10 grid grid-cols-2">
+                <div className="mt-4 p-4 md:p-6 rounded-2xl flex flex-col bg-secondary">
 
-                <div className="flex-center pl-4 gap-x-2 text-xs text-muted-foreground">
-                    <CalendarIcon className='size-3.5' />
-                    <span>1405/02/17</span>
-                </div>
-                <div className="flex-center pl-4 gap-x-2 text-xs text-muted-foreground">
-                    <UserIcon className='size-3.5' />
-                    <span>aure10</span>
-                </div>
+                    <div className="flex justify-between items-start">
 
-            </div>
-
-            <p className='mt-2 text-sm leading-relaxed text-muted-foreground text-justify'>
-                لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ، و با استفاده از طراحان گرافیک است، چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است، و برای شرایط فعلی تکنولوژی مورد نیاز، و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد، کتابهای زیادی در شصت و سه درصد گذشته حال و آینده، شناخت فراوان جامعه و متخصصان را می طلبد، تا با نرم افزارها شناخت بیشتری را برای طراحان رایانه ای علی الخصوص طراحان خلاقی، و فرهنگ پیشرو در زبان فارسی ایجاد کرد، در این صورت می توان امید داشت که تمام و دشواری موجود در ارائه راهکارها، و شرایط سخت تایپ به پایان رسد و زمان مورد نیاز شامل حروفچینی دستاوردهای اصلی، و جوابگوی سوالات پیوسته اهل دنیای موجود طراحی اساسا مورد استفاده قرار گیرد.
-            </p>
+                        <div className="flex-row-center gap-x-2">
 
 
-
-            <div className="mt-2 bg-muted rounded-2xl gap-1 px-4 py-2 flex flex-col gap-y-2">
-                <h3 className='text-sm text-muted-foreground font-semibold'>فایل های ضمیمه شده</h3>
-
-
-
-                <div className="flex flex-wrap gap-1">
-                    {Array.from({ length: 4 }).map((_, i) => (
-                        <button key={i} className="p-2 bg-background/50 px-4 py-1 rounded-full flex-row-center gap-x-2">
-                            <span className='text-sm font-sans leading-relaxed'>file.txt</span>
-                            <FileIcon className='size-4' />
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            <div className="flex-center-between mt-4">
-
-                <div className="flex-row-center gap-x-4">
-                    <button className="rounded-full flex-row-center gap-x-2">
-                        <ThumbsUpIcon className='size-4' />
-                        <span className='text-sm font-sans leading-relaxed'>15</span>
-                    </button>
-                    <button className="rounded-full flex-row-center gap-x-2">
-                        <ThumbsDownIcon className='size-4' />
-                        <span className='text-sm font-sans leading-relaxed'>15</span>
-                    </button>
-
-                    <button className="rounded-full flex-row-center gap-x-2">
-                        <MessagesSquareIcon className='size-4' />
-                        <span className='text-sm font-sans leading-relaxed'>36</span>
-                    </button>
-                </div>
+                            <div className="size-10 rounded-full bg-muted flex-center">
+                                <User2Icon className='size-6 text-muted-foreground' />
+                            </div>
 
 
-                <button className="rounded-full flex-row-center gap-x-2">
-                    <ReplyIcon className='size-4' />
-                    <span className='text-sm font-sans leading-relaxed'>پاسخ</span>
-                </button>
-
-            </div>
+                            <div className="flex flex-col">
 
 
-            <div className="border-t border-muted mt-4 pt-4">
+                                <Typography
+                                    variant="caption"
+                                    weight='medium'
+                                >
+                                    {data.author?.username}
+                                </Typography>
 
-                <h2 className='font-semibold text-foreground text-sm'>پاسخ به درخواست <span className='text-muted-foreground'>"عنوان درخواست"</span></h2>
+                                <Typography
+                                    className='text-muted-foreground'
+                                    variant="caption-xs"
+                                >
+                                    {momentFa(new Date(data.published_at ?? data.created_at)).format("D MMMM YYYY")}
+                                </Typography>
 
-                <form action="">
 
-                    <div className="flex flex-col py-4 gap-y-2 border-b border-muted">
+                            </div>
 
-                        <textarea name="" id="" placeholder="پاسخ شما..."
-                            rows={10}
 
-                            className='border resize-none border-muted rounded-3xl px-4 py-2 focus:ring-0 focus:outline-0 text-sm text-foreground' />
+                        </div>
 
-                        <button className="flex-center gap-x-2 px-4 py-2 rounded-full text-sm border border-muted text-foreground hover:text-primary hover:border-primary hover:bg-primary/10 transition-colors duration-100 hover:outline-4 outline-primary/10">
-                            <FilePlusIcon className="size-4" />
-                            <span>ضمیمه فایل</span>
-                        </button>
 
+                        <div className="flex-row-center gap-x-3">
+                            {data.is_answered && (
+                                <div className="flex-row-center gap-x-1 text-success">
+                                    <MessageCircleCheckIcon className="size-3" />
+
+                                    <Typography
+                                        className='text-success'
+                                        variant="caption-xs"
+                                    >
+                                        پاسخ داده شده
+                                    </Typography>
+                                </div>
+                            )}
+                            {data.published_at === null && (
+                                <div className="flex-row-center gap-x-1 text-warning">
+                                    <SaveIcon className="size-3" />
+                                    <Typography
+                                        className='text-warning'
+                                        variant="caption-xs"
+                                    >
+                                        پیش نویس
+                                    </Typography>
+                                </div>
+                            )}
+                            {data.author_id === Number(session?.user?.id) && (
+                                <>
+                                    <DeleteRequestDetailsButton request_id={data.id} title={data.title} back_url={"/my/requests"} />
+                                    <EditButton url={`/my/requests/${data.id}`} />
+                                </>
+                            )}
+
+
+                        </div>
                     </div>
 
+                    <Typography
+                        className='mt-4'
+                        variant="h4"
+                        weight='semibold'
+                    >
+                        {data.title}
+                    </Typography>
 
-                    <div className="flex-row-center gap-x-2 pt-4 max-w-md mr-auto">
+                    <Typography
+                        className='mt-4 mb-8'
+                        variant="pre"
+                    >
+                        {data.description}
+                    </Typography>
 
-                        <button className="flex-1 flex-center gap-x-2 px-4 py-2 rounded-full text-sm border border-primary text-primary hover:bg-primary/10 transition-colors duration-100 hover:outline-4 outline-primary/10">
-                            <SendIcon className="size-4" />
-                            <span>ارسال پاسخ</span>
-                        </button>
+                    {data.attached_files.length > 0 ? (
+                        <AttachedFiles files={data.attached_files} theme='default' />
+                    ) : null}
+
+                    <div className="flex-center-between mt-4">
+
+                        <AuthRequiredProvider>
+                            <ReplyButton
+                                auth_required={auth_required}
+                                id={data.id}
+                                type="request"
+                            />
+                            <RequestDetailsButtons
+                                user_vote={data?.user_vote_status ?? null}
+                                request_id={data.id}
+                                likes_count={data.likes_count}
+                                dislikes_count={data.dislikes_count}
+                                replies_count={data.replies_count}
+                                auth_required={auth_required}
+                            />
+
+
+
+                        </AuthRequiredProvider>
+
                     </div>
-                </form>
+                </div>
             </div>
 
 
-
-            <div className="mt-10 py-4 border-t border-muted">
-                <div className="flex-center-between">
-                    <h3 className='text-sm text-muted-foreground font-semibold'>36 پاسخ</h3>
-
-                    <label htmlFor="filter" className="flex-row-center gap-x-2 bg-muted text-sm px-4 py-1 rounded-full">
-
-                        <select className="appearance-none  focus:outline-0 focus:ring-0" name="filter" id="filter">
-                            <option value="">پربازدیدترین</option>
-                            <option value="">جدیدترین ها</option>
-                        </select>
-                        <ChevronDownIcon className="size-4" />
-                    </label>
-                </div>
-
-
-
-                <div className="mt-8 grid grid-cols-1 gap-4">
-                    {Array.from({ length: 10 }).map((_, i) => (
-                        <CommentItem key={i} />
-                    ))}
-                </div>
-
-                <button className="mx-auto col-span-2 flex-row-center gap-x-2 px-4 py-2 rounded-full text-sm border border-muted text-foreground mt-8 hover:text-primary hover:border-primary hover:bg-primary/10 transition-colors duration-100 hover:outline-4 outline-primary/10">
-                    <span>پاسخ های بیشتر</span>
-                    <ArrowDownIcon className="size-4" />
-                </button>
-
-            </div>
-
+            <Comments
+                order={order}
+                commentable='request'
+                commentable_id={data.id}
+                count={data.replies_count}
+                pinned={data.chosen_answer}
+                canReply={!!session?.user}
+                request_id={data.id}
+                request_author_id={data.author_id}
+            />
         </div>
     )
 }

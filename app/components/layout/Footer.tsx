@@ -1,4 +1,5 @@
 import React from 'react'
+import { Typography } from '../common/Typography'
 
 export default function Footer() {
     return (
@@ -8,16 +9,15 @@ export default function Footer() {
 
                 <div className="flex-center gap-x-1">
 
-                    {/* <p className='text-sm text-center text-foreground'>درخواستی</p>
-                    <p className='text-sm text-center text-foreground'>-</p> */}
-                    <p className='text-sm text-center text-foreground'>ساخته شده در اردیبهشت ۱۴۰۵</p>
-
+                    <Typography variant='body-sm'>
+                        ساخته شده در اردیبهشت ۱۴۰۵
+                    </Typography>
 
                 </div>
 
-
-
-                <p className='leading-relaxed text-xs text-center text-muted-foreground'>تمامی حقوق این وب اپلیکیشن متعلق به درخواستی می باشد و هرگونه کپی برداری پیگرد قانونی دارد.</p>
+                <Typography variant='caption-xs' className='text-muted-foreground text-center'>
+                    تمامی حقوق این وب اپلیکیشن متعلق به درخواستی می باشد و هرگونه کپی برداری پیگرد قانونی دارد.
+                </Typography>
             </div>
         </footer>
     )
