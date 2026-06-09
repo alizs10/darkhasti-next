@@ -8,6 +8,9 @@ export default async function Header() {
 
     const session = await auth()
 
+    console.log(session)
+
+
     return (
         <header className='flex-center-between border-b border-muted h-16  px-4 sm:px-8 md:px-12 lg:px-20 xl:px-30'>
             <Link href={"/"}>

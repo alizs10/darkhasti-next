@@ -69,7 +69,7 @@ export default function LoginForm() {
             }
         )
 
-        if (result?.error) {
+        if (result?.code === '401') {
             toast.error(
                 'نام کاربری یا کلمه عبور اشتباه است'
             )

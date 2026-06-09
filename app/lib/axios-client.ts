@@ -1,9 +1,9 @@
-// lib/axios.ts
+// lib/axios-client.ts
 "use client"
 
 import axios from "axios"
-import { getSession } from "next-auth/react"
-// Create a base Axios instance
+import { getSession, signOut } from "next-auth/react"
+
 const axiosClient = axios.create({
     baseURL: process.env.NEXT_PUBLIC_BACKEND_API_URL,
     headers: {
@@ -11,66 +11,60 @@ const axiosClient = axios.create({
     },
 })
 
-// Add a request interceptor to attach the token
+// Attach token from session on every request
 axiosClient.interceptors.request.use(
     async (config) => {
+        if (config.headers.Authorization) return config
+
         const session = await getSession()
 
+        if (session?.error === "RefreshTokenExpiredError" || session?.error === "RefreshTokenError") {
+            await signOut({ redirectTo: "/auth?form=login" })
+            return Promise.reject(new Error("Session expired"))
+        }
+
         if (session?.accessToken) {
-            config.headers.Authorization = `Bearer ${session?.accessToken}`
+            config.headers.Authorization = `Bearer ${session.accessToken}`
         }
 
         return config
     },
-    (error) => {
+    (error) => Promise.reject(error)
+)
+
+// On 401, the access token may have expired mid-session on the client.
+// Hitting /api/auth/session triggers a new request through proxy.ts,
+// which refreshes and updates the cookie, then we retry with the new token.
+axiosClient.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        const originalRequest = error.config
+
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true
+
+            try {
+                // This request goes through proxy.ts which will refresh
+                // the cookie if the token is expired
+                const res = await fetch("/api/auth/session")
+                const session = await res.json()
+
+                if (session?.error || !session?.accessToken) {
+                    await signOut({ redirectTo: "/auth?form=login" })
+                    return Promise.reject(error)
+                }
+
+                originalRequest.headers.Authorization = `Bearer ${session.accessToken}`
+                return axiosClient(originalRequest)
+
+            } catch {
+                await signOut({ redirectTo: "/auth?form=login" })
+                return Promise.reject(error)
+            }
+        }
+
         return Promise.reject(error)
     }
 )
-
-// Add a response interceptor for automatic token refresh
-// axiosClient.interceptors.response.use(
-//     (response) => response,
-//     async (error) => {
-//         const originalRequest = error.config
-
-//         // If the error is 401 and we haven't already tried to refresh
-//         if (error.response?.status === 401 && !originalRequest._retry) {
-//             originalRequest._retry = true
-
-//             try {
-//                 // Get current session to access refresh token
-//                 const session = await auth()
-
-//                 if (!session?.refreshToken) {
-//                     throw new Error("No refresh token available")
-//                 }
-
-//                 // Refresh the token
-//                 const refreshRes = await refresh(session.refreshToken)
-
-//                 // Update the session with new tokens
-//                 await updateSession({
-//                     accessToken: refreshRes.access_token,
-//                     refreshToken: refreshRes.refresh_token,
-//                     expiresIn: Date.now() + (refreshRes.expires_in * 1000),
-//                     refreshExpiresIn: Date.now() + (refreshRes.refresh_expires_in * 1000),
-//                     tokenType: refreshRes.token_type,
-//                 })
-
-//                 // Update the authorization header and retry
-//                 originalRequest.headers.Authorization = `Bearer ${refreshRes.access_token}`
-//                 return axiosClient(originalRequest)
-
-//             } catch (refreshError) {
-//                 console.error("Token refresh failed:", refreshError)
-//                 // You might want to sign out here
-//                 // await signOut({ redirect: true, redirectTo: "/auth?form=login" })
-//                 return Promise.reject(refreshError)
-//             }
-//         }
-
-//         return Promise.reject(error)
-//     }
-// )
 
 export default axiosClient

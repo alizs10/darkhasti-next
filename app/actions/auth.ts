@@ -124,10 +124,8 @@ export interface TokenData {
 export async function refresh(refreshToken: string | undefined): Promise<TokenData> {
     if (!refreshToken) throw new Error("No refresh token provided");
 
-    const now = Date.now();
 
     try {
-        console.log("🔄 Starting token refresh...");
         const response = await fetch(`${process.env.BACKEND_API_URL}/refresh`, {
             method: "POST",
             headers: {
@@ -138,12 +136,10 @@ export async function refresh(refreshToken: string | undefined): Promise<TokenDa
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            console.error("Refresh failed with status:", response.status, errorData);
             throw new Error(`Refresh failed: ${response.status}`);
         }
 
         const data = await response.json();
-        console.log("✅ Refresh successful");
         return {
             access_token: data.data.access_token,
             refresh_token: data.data.refresh_token,

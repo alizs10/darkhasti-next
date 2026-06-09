@@ -3,7 +3,7 @@ import { Typography } from '../common/Typography'
 
 export default function Footer() {
     return (
-        <footer className='px-4 py-10 border-t border-muted max-h-fit'>
+        <footer className='mt-auto px-4 py-10 border-t border-muted max-h-fit'>
 
             <div className="flex flex-col gap-y-2">
 

@@ -60,7 +60,9 @@ export default async function Home({ data, meta }: HomeProps) {
 
 
 
-            <HomeRequests data={data} meta={meta} />
+            {data && data?.length > 0 && (
+                <HomeRequests data={data} meta={meta} />
+            )}
 
         </div>
     )
