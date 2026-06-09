@@ -6,6 +6,7 @@ import { ActionResult, ApiResponse, Comment, CreateRequestInputs, Request, Reque
 import axiosServer from "../lib/axios-server";
 import { redirect } from "next/navigation";
 import { parseApiError } from "../lib/error-handler";
+import { cached } from "../lib/cache";
 // import { fetchWithAuth } from "../lib/api";
 // import { postClient } from "../lib/api";
 
@@ -92,7 +93,7 @@ export async function handleCreateRequest(inputs: CreateRequestInputs): Promise<
 }
 
 
-export async function getRequest(request_id: number | string) {
+export const getRequest = cached(async (request_id: number | string) => {
     try {
         const result = await axiosServer.get<ApiResponse<Request>>(`/requests/${request_id}`)
         return result;
@@ -100,9 +101,9 @@ export async function getRequest(request_id: number | string) {
     } catch (error) {
         console.log(error)
     }
-}
+})
 
-export async function getMyRequest(request_id: number | string) {
+export const getMyRequest = cached(async (request_id: number | string) => {
     try {
         const result = await axiosServer.get<ApiResponse<Request>>(`/my/requests/${request_id}`)
 
@@ -113,7 +114,7 @@ export async function getMyRequest(request_id: number | string) {
     } catch (error) {
         console.log(error)
     }
-}
+})
 
 export async function updateRequest(id: string | number, inputs: UpdateRequestInputs): Promise<ActionResult<Request>> {
     try {

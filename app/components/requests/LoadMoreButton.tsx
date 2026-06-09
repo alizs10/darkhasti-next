@@ -28,7 +28,7 @@ export function LoadMoreButton() {
                 variant="caption-xs"
                 weight='medium'
             >
-                {isLoadingMore ? 'در حال بارگیری...' : 'درخواست های بیشتر'}
+                {isLoadingMore ? 'در حال بارگیری...' : 'درخواست‌های بیشتر'}
             </Typography>
         </Button>
     );

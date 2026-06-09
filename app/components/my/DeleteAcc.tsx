@@ -89,7 +89,7 @@ export default function DeleteAcc() {
                     حذف حساب کاربری
                 </Typography>
                 <Typography variant="caption-xs" className="text-muted-foreground text-justify">
-                    با حذف حساب کاربری تمامی اطلاعات شما(درخواست ها، پاسخ ها) از بین خواهد رفت و قابل برگشت نخواهد بود.
+                    با حذف حساب کاربری تمامی اطلاعات شما(درخواست‌ها، پاسخ ها) از بین خواهد رفت و قابل برگشت نخواهد بود.
                 </Typography>
 
                 <Button

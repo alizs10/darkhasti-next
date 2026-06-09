@@ -1,8 +1,16 @@
+import { Metadata } from "next";
 import { getRequests } from "../actions/request";
 import Home from "../components/home/Home";
 import { REQUEST_ORDERS } from "../constants/orders";
 // import { getClient, serverGet } from "../lib/api";
-import { Request, RequestOrder } from "@/app/types";
+import { RequestOrder } from "@/app/types";
+
+
+export const metadata: Metadata = {
+  title: 'درخواستی',
+  description: "محدودیتی وجود نداره!   جای هر درخواستی اینجاست..."
+};
+
 
 
 

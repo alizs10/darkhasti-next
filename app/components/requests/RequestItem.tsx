@@ -1,4 +1,4 @@
-import { MessageCircleCheckIcon, MessagesSquareIcon, PenIcon, SaveIcon, ThumbsUpIcon, TrendingUpIcon, User2Icon, UserIcon } from 'lucide-react'
+import { MessageCircleCheckIcon, MessagesSquareIcon, SaveIcon, ThumbsUpIcon, TrendingUpIcon, User2Icon } from 'lucide-react'
 import Link from 'next/link'
 import momentFa from "@/app/lib/moment"
 import EditButton from '../common/EditButton';
@@ -6,18 +6,34 @@ import { Request } from '@/app/types';
 import { Typography } from '../common/Typography';
 import DeleteRequestButton from '../common/DeleteRequestButton';
 import DeleteRequestDetailsButton from '../common/DeleteRequestDetailsButton';
+import { useMemo } from 'react';
 
 
 interface RequestItemProps {
     request: Request;
     isInContext?: boolean;
     isOwner?: boolean;
+    back_url?: string;
 }
 
-export default function RequestItem({ request, isOwner = false, isInContext = false }: RequestItemProps) {
+export default function RequestItem({ request, isOwner = false, isInContext = false, back_url }: RequestItemProps) {
+
+    const href = useMemo(() => {
+
+        let url = `/requests/${request.id}`
+
+        if (back_url) {
+            url += `?back_url=${back_url}`
+        }
+
+        return url
+
+    }, [back_url])
+
+
 
     return (
-        <Link href={`/requests/${request.id}`} className="col-span-1 h-68 flex flex-col bg-secondary rounded-2xl p-4">
+        <Link href={href} className="col-span-1 h-68 flex flex-col bg-secondary rounded-2xl p-4">
 
             <div className="flex justify-between items-start">
 

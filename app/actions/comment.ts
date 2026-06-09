@@ -3,6 +3,7 @@
 import { ActionResult, ApiResponse, Comment, CommentInputs, CommentOrder, UpdateCommentInputs } from "../types";
 import axiosServer from "../lib/axios-server";
 import { parseApiError } from "../lib/error-handler";
+import { cached } from "../lib/cache";
 
 
 export async function storeComment(inputs: CommentInputs): Promise<ActionResult<Comment>> {
@@ -33,7 +34,7 @@ export async function storeComment(inputs: CommentInputs): Promise<ActionResult<
 
 }
 
-export async function getComment(comment_id: number | string) {
+export const getComment = cached(async (comment_id: number | string) => {
     try {
         const result = await axiosServer.get<ApiResponse<Comment>>(`/comments/${comment_id}`)
 
@@ -44,9 +45,9 @@ export async function getComment(comment_id: number | string) {
     } catch (error) {
         console.log(error)
     }
-}
+})
 
-export async function getMyComment(comment_id: number | string) {
+export const getMyComment = cached(async (comment_id: number | string) => {
     try {
         const result = await axiosServer.get<ApiResponse<Comment>>(`/my/comments/${comment_id}`)
 
@@ -57,7 +58,7 @@ export async function getMyComment(comment_id: number | string) {
     } catch (error) {
         console.log(error)
     }
-}
+})
 
 export async function getComments(id: number | string, type: 'comment' | 'request', order: CommentOrder) {
     // Use the correct endpoint - for comment replies, use /replies not /comments

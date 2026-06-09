@@ -27,7 +27,7 @@ export default async function HomeRequests({ data, meta }: HomeRequestsProps) {
                     variant="h4"
                     weight='semibold'
                 >
-                    درخواست ها
+                    درخواست‌ها
                 </Typography>
 
                 <SelectFilter type="request" />

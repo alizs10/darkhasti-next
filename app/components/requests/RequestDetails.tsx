@@ -1,4 +1,4 @@
-import { CalendarIcon, FileIcon, MessageCircleCheckIcon, SaveIcon, User2Icon, UserIcon } from 'lucide-react'
+import { MessageCircleCheckIcon, SaveIcon, User2Icon } from 'lucide-react'
 import Comments from '../comments/Comments';
 import { CommentOrder, Request } from '@/app/types';
 import { auth } from '@/app/lib/auth';
@@ -7,7 +7,6 @@ import momentFa from '@/app/lib/moment';
 import RequestDetailsButtons from './RequestDetailsButtons';
 import ReplyButton from '../common/ReplyButton';
 import { AuthRequiredProvider } from '@/app/context/AuthRequiredContext';
-import FileItem from '../common/attach-files/FileItem';
 import AttachedFiles from '../common/attach-files/AttachedFiles';
 import EditButton from '../common/EditButton';
 import { Typography } from '../common/Typography';
@@ -26,7 +25,7 @@ export default async function RequestDetails({ data, order }: RequestDetailsProp
     return (
         <div className='flex flex-col flex-1 w-full px-4 sm:px-8 md:px-12 lg:px-20 xl:px-0 xl:max-w-6xl md:mx-auto py-10'>
 
-            <BackButton url={`/`} />
+            <BackButton />
 
             <div className="w-full flex flex-col">
                 <Typography

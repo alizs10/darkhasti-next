@@ -85,7 +85,7 @@ export default function RequestsClient({ data, pagination, order, user_id, my }:
                         )}
 
                         <Typography variant="body-sm" weight="medium">
-                            درخواست ها{my ? `ی من` : ''}
+                            درخواست‌ها{my ? `ی من` : ''}
                         </Typography>
                     </div>
 

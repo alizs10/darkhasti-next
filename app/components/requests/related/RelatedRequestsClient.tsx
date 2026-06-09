@@ -81,7 +81,7 @@ export default function RelatedRequestsClient({ user, data }: RelatedRequestsCli
                     variant="body"
                     weight='semibold'
                 >
-                    درخواست های مرتبط
+                    درخواست‌های مرتبط
                 </Typography>
 
 

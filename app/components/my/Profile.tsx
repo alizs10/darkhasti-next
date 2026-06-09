@@ -66,7 +66,7 @@ export default async function Profile() {
                     size="sm"
                 >
                     <Typography variant="caption">
-                        درخواست های من
+                        درخواست‌های من
                     </Typography>
                 </Button>
             </div>
@@ -78,7 +78,7 @@ export default async function Profile() {
                 </Typography>
                 <div className="bg-secondary rounded-3xl flex flex-nowrap divide-x divide-muted-foreground/10">
                     <div className="flex-1 px-2 flex-center flex-col gap-y-4 py-6">
-                        <Typography variant="caption-xs">درخواست ها</Typography>
+                        <Typography variant="caption-xs">درخواست‌ها</Typography>
                         <Typography variant="display">{stats?.requests_count ?? "خطا"}</Typography>
                     </div>
                     <div className="flex-1 flex-center flex-col gap-y-4 py-6">

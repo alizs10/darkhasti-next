@@ -1,5 +1,4 @@
 import { useRequests } from '@/app/context/RequestsContext'
-import React from 'react'
 import RequestItem from './RequestItem'
 import NoRequests from './my/NoRequests';
 
@@ -18,7 +17,7 @@ export default function RequestsList({ layout = 'grid', user_id, my }: RequestsL
     <>
       <div className={`flex flex-col ${layout === 'grid' ? 'sm:grid sm:grid-cols-2 xl:grid-cols-3' : ''} gap-4 mt-4 z-10`}>
         {requests?.map((req, i) =>
-          <RequestItem key={i} request={req} isOwner={Number(user_id) === req.author_id} isInContext />
+          <RequestItem key={i} request={req} isOwner={Number(user_id) === req.author_id} isInContext back_url={my ? "/my/requests" : undefined} />
         )}
       </div>
 

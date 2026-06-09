@@ -14,7 +14,7 @@ export default function SearchInput() {
         value={searchValue}
         onChange={onSearchChange}
         onKeyDown={handleKeyDown} type="text" className="w-full text-sm focus:outline-0 focus:ring-0 px-4 rounded-full h-full"
-        placeholder='جستجو میان درخواستی ها'
+        placeholder='جستجو میان درخواستی‌ها'
       />
       <div className='flex-row-center gap-x-1 h-full flex-center text-sm font-semibold text-foreground rounded-full'>
         {searchValue.trim().length > 0 && (
