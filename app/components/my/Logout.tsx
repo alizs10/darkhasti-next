@@ -1,29 +1,19 @@
 "use client"
 
-import axiosClient from "@/app/lib/axios-client"
-import { ApiResponse } from "@/app/types"
 import { LogOutIcon } from "lucide-react"
 import { signOut } from "next-auth/react"
 import { Button } from "../common/Button"
 import { Typography } from "../common/Typography"
+import { logoutReq } from "@/app/actions/auth"
 
 export async function logoutHandler() {
-    try {
 
-        const res = await axiosClient.post<ApiResponse>("/logout")
+    const res = await logoutReq()
 
-        if (res.status === 200) {
-            await signOut()
-            return
-        }
-        throw new Error("Error while logging out")
+    if (!res) return
 
+    await signOut()
 
-    } catch (error) {
-        console.log(error)
-        throw new Error("Error while logging out")
-
-    }
 }
 
 export default function Logout() {

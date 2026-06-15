@@ -1,4 +1,4 @@
-import { getRequests } from "@/app/actions/request";
+import { requestsReq } from "@/app/actions/request";
 import AllRequests from "@/app/components/requests/AllRequests";
 import { REQUEST_ORDERS } from "@/app/constants/orders";
 import { RequestOrder } from "@/app/types";
@@ -48,7 +48,7 @@ export default async function RequestsPage({ searchParams }: PageProps) {
     const search = rawSearch && rawSearch.trim() !== "" ? rawSearch : null;
 
     // Fetch data
-    const requestsData = await getRequests(order, search);
+    const requestsData = await requestsReq({ order, search });
 
     if (!requestsData) {
         return null; // Or return an <EmptyState /> component if you prefer

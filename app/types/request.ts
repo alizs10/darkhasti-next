@@ -1,5 +1,5 @@
 import { AttachedFile } from "./attached-file";
-import { Comment } from "./comment";
+import { Comment, CommentOrder } from "./comment";
 import { User } from "./user"
 
 export interface Request {
@@ -38,4 +38,18 @@ export interface UpdateRequestInputs {
     deleted_main_files?: string[]
     temp_files?: string[]
     save_as_draft?: boolean;
+}
+
+export interface RequestsReqProps {
+    order: RequestOrder,
+    per_page?: number | "all"
+    search?: string | null
+    cursor?: string | null
+}
+
+export interface RequestCommentsReqProps {
+    request_id: number | string;
+    order: CommentOrder,
+    per_page?: number | "all"
+    cursor?: string | null
 }

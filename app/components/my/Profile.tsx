@@ -20,25 +20,19 @@ interface ProfileResponse {
 }
 
 // Accept the token so we don't need a second auth() call inside getUserStats
-async function getUserStats(accessToken: string) {
+async function getUserStats() {
     try {
-        const result = await axiosServer.get<ApiResponse<ProfileResponse>>("/profile/stats", {
-            headers: {
-                // By pre-setting this, the interceptor skips its own auth() call
-                Authorization: `Bearer ${accessToken}`,
-            },
-        })
+        const result = await axiosServer.get<ApiResponse<ProfileResponse>>("/profile/stats")
         return result.data?.data?.stats;
     } catch (error) {
-        console.log(error)
+        // console.log(error)
+        console.log("error getting stats")
     }
 }
 
 export default async function Profile() {
     // Single auth() call for the entire component — token is reused everywhere
     const session = await auth()
-
-    console.log("token used for profile: ", session?.accessToken)
 
     if (!session?.user) {
         return null
@@ -47,7 +41,7 @@ export default async function Profile() {
     const { user } = session;
 
     // Pass the token down so getUserStats doesn't trigger another auth() call
-    const stats = await getUserStats(session.accessToken as string)
+    const stats = await getUserStats()
 
     if (!stats) {
         return null;

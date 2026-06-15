@@ -16,13 +16,6 @@ interface CommentsListProps {
 
 export default function CommentsList({ commentable, commentable_id, pinned, user }: CommentsListProps) {
     const { chosenAnswer, comments } = useComments();
-    // const session = useSession()
-    // const user = session?.data?.user;
-
-    // Filter out pinned comment from the main list if it exists
-    // const filteredComments = pinned
-    //     ? comments.filter(comment => comment.id !== pinned.id)
-    //     : comments;
 
     return (
         <AuthRequiredProvider>
@@ -39,7 +32,7 @@ export default function CommentsList({ commentable, commentable_id, pinned, user
                     />
                 )}
 
-                {comments.map((comment, i) => (
+                {comments?.map((comment, i) => (
                     <CommentItem
                         key={comment.id || i}
                         comment={{ ...comment, editable: comment?.author?.id.toString() === user?.id?.toString() }}
@@ -51,7 +44,7 @@ export default function CommentsList({ commentable, commentable_id, pinned, user
                 ))}
 
             </div>
-            {comments.length === 0 && !pinned && (
+            {comments?.length === 0 && !pinned && (
                 <div className="flex-center mx-auto w-fit pt-6 pb-10">
 
                     <Typography

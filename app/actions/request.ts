@@ -1,33 +1,46 @@
 "use server"
 
-// import { redirect } from "next/navigation";
-import { ActionResult, ApiResponse, Comment, CreateRequestInputs, Request, RequestOrder, UpdateRequestInputs } from "../types";
-// import { serverGet } from "../lib/axios-server";
+import { ActionResult, ApiResponse, Comment, CreateRequestInputs, Request, RequestCommentsReqProps, RequestOrder, RequestsReqProps, UpdateRequestInputs } from "../types";
 import axiosServer from "../lib/axios-server";
-import { redirect } from "next/navigation";
 import { parseApiError } from "../lib/error-handler";
 import { cached } from "../lib/cache";
-// import { fetchWithAuth } from "../lib/api";
-// import { postClient } from "../lib/api";
 
-
-
-
-export async function getRequests(order: RequestOrder, search?: string | null) {
+export async function requestsReq({ order, per_page, search, cursor }: RequestsReqProps) {
     try {
 
         let url = `/requests?order=${order}`
 
+        if (per_page) {
+            url += `&per_page=${per_page}`
+        }
         if (search) {
             url += `&search=${search}`
         }
+        if (cursor) {
+            url += `&cursor=${cursor}`
+        }
 
-        console.log(url)
 
         const result = await axiosServer.get<ApiResponse<Request[]>>(url)
 
+        return result.data;
 
-        console.log(result.data)
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export async function requestCommentsReq({ request_id, order, cursor }: RequestCommentsReqProps) {
+    try {
+
+        let url = `/requests/${request_id}/comments?order=${order}`
+
+        if (cursor) {
+            url += `&cursor=${cursor}`
+        }
+
+
+        const result = await axiosServer.get<ApiResponse<Comment[]>>(url)
 
         return result.data;
 

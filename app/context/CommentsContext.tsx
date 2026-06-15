@@ -8,8 +8,8 @@ import { toast } from 'sonner';
 
 interface CommentsContextType {
     chosenAnswer: Comment | null;
-    comments: Comment[];
-    commentsCount: number;
+    comments: Comment[] | null;
+    commentsCount: number | null;
     request_id: string | number;
     request_author_id: string | number;
     pagination: PaginationData | null;
@@ -27,7 +27,7 @@ interface CommentsContextType {
 const CommentsContext = createContext<CommentsContextType | undefined>(undefined);
 
 interface CommentsProviderProps {
-    init_data: Comment[];
+    init_data: Comment[] | null;
     init_chosen_answer: Comment | null;
     request_id: string | number;
     request_author_id: string | number;
@@ -48,13 +48,19 @@ export function CommentsProvider({
     onLoadMore
 }: CommentsProviderProps) {
     const [chosenAnswer, setChosenAnswer] = useState<null | Comment>(init_chosen_answer)
-    const [comments, setComments] = useState<Comment[]>(init_data);
-    const [commentsCount, setCommentCount] = useState(init_data.length)
+    const [comments, setComments] = useState<Comment[] | null>(init_data);
+    const [commentsCount, setCommentCount] = useState<null | number>(null)
     const [pagination, setPagination] = useState<PaginationData | null>(initialPagination);
     const [isLoadingMore, setLoadingMore] = useState(false);
 
     useEffect(() => {
+
+        if (!init_data) return
+
+        console.log({ init_data })
+
         setComments(init_data);
+        setCommentCount(init_data.length)
     }, [init_data]);
 
     useEffect(() => {
@@ -76,12 +82,12 @@ export function CommentsProvider({
 
             if (newComment) {
                 if (commentOrder === 'new') {
-                    setComments(prev => ([newComment, ...prev]));
+                    setComments(prev => prev ? ([newComment, ...prev]) : prev);
                 } else {
-                    setComments(prev => ([...prev, newComment]));
+                    setComments(prev => prev ? ([...prev, newComment]) : prev);
                 }
 
-                setCommentCount(prev => prev + 1)
+                setCommentCount(prev => typeof prev === 'number' ? prev + 1 : 0)
             }
 
             return newComment;
@@ -91,12 +97,14 @@ export function CommentsProvider({
     }
 
     const appendComments = useCallback((newComments: Comment[]) => {
-        setComments(prev => [...prev, ...newComments]);
+        setComments(prev => prev ? [...prev, ...newComments] : prev);
     }, []);
 
     const updateComment = useCallback((comment: Comment) => {
 
         setComments(prev => {
+
+            if (!prev) return prev
 
             let updatedPrev = [...prev]
             const commentIndex = updatedPrev.findIndex(f => f.id === comment.id)
@@ -108,7 +116,7 @@ export function CommentsProvider({
 
     const deleteComment = useCallback((comment_id: string | number) => {
 
-        setComments(prev => prev.filter(c => c.id !== comment_id))
+        setComments(prev => prev ? prev.filter(c => c.id !== comment_id) : prev)
 
     }, [])
 

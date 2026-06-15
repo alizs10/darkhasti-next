@@ -49,7 +49,7 @@ export default function ReplyButton({ auth_required, type, id }: ReplyButtonProp
 
     return (
         <Button variant="ghost" size='sm' onClick={handleClick}
-            className='px-2! py-0.5!'
+            className='px-2 py-1 h-auto'
             rightIcon={<ReplyIcon className='size-3.5' />}>
             <Typography
 

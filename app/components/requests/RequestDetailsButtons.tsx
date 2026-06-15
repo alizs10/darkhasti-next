@@ -32,10 +32,7 @@ export default function RequestDetailsButtons({ user_vote, request_id, auth_requ
     const [disabledType, setDisabledType] = useState<null | "like" | "dislike">(null)
 
 
-    async function voteHandler(e: MouseEvent<HTMLButtonElement>, type: "like" | "dislike") {
-
-        e.stopPropagation()
-        e.preventDefault()
+    async function voteHandler(type: "like" | "dislike") {
 
 
         if (auth_required) {
@@ -45,39 +42,51 @@ export default function RequestDetailsButtons({ user_vote, request_id, auth_requ
 
         setDisabledType(type)
 
-        try {
 
-            const res = await handleVote({
-                id: request_id,
-                type: "request",
-                vote: type
-            })
+        const res = await handleVote({
+            id: request_id,
+            type: "request",
+            vote: type
+        })
 
-            const data = res?.data;
-
-
-
-            setTimeout(() => {
-                setUserVote(data?.current_vote ?? null)
-                setVotes(prev => ({
-                    likes: data?.likes ?? prev.likes,
-                    dislikes: data?.dislikes ?? prev.dislikes,
-                }))
-
-                setDisabledType(null)
-                toast(data?.message)
-            }, 1000)
-
-        } catch (error) {
-            toast('Something went wrong!')
+        if (!res.success) {
+            setDisabledType(null)
+            toast.error(res.error?.message)
+            return
         }
 
+
+        const data = res?.data;
+
+
+        setTimeout(() => {
+            setUserVote(data?.current_vote ?? null)
+            setVotes(prev => ({
+                likes: data?.likes ?? prev.likes,
+                dislikes: data?.dislikes ?? prev.dislikes,
+            }))
+
+            setDisabledType(null)
+            toast(data?.message)
+        }, 1000)
+
+
+
+    }
+
+    async function onVote(e: MouseEvent<HTMLButtonElement>, type: "like" | "dislike") {
+
+        e.preventDefault()
+        e.stopPropagation()
+
+        await voteHandler(type)
     }
 
     return (
         <div className="flex-row-center gap-x-4">
             <div className="flex-row-center gap-x-0">
-                <Button variant='ghost' size="sm" className='px-2! py-0.5!' onClick={(e) => voteHandler(e, "like")}
+                <Button variant='ghost' size="sm" className={`px-2 h-auto py-1 ${userVote === 'like' ? 'text-success' : 'text-foreground'} disabled:bg-muted`}
+                    onClick={(e) => onVote(e, 'like')}
                     disabled={disabledType === 'like'}
                     rightIcon={<ThumbsUpIcon className='size-3.5' />}
                 >
@@ -88,7 +97,8 @@ export default function RequestDetailsButtons({ user_vote, request_id, auth_requ
                     </Typography>
 
                 </Button>
-                <Button variant='ghost' size="sm" className='px-2! py-0.5!' onClick={(e) => voteHandler(e, "dislike")}
+                <Button variant='ghost' size="sm" className={`px-2 h-auto py-1 ${userVote === 'dislike' ? 'text-destructive' : 'text-foreground'} disabled:bg-muted`}
+                    onClick={(e) => onVote(e, 'dislike')}
                     disabled={disabledType === 'dislike'}
                     rightIcon={<ThumbsDownIcon className='size-3.5' />}
                 >

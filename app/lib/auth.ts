@@ -1,25 +1,18 @@
-// lib/auth.ts
 import NextAuth, { CredentialsSignin } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
-import type { NextAuthConfig } from "next-auth"
-import { refresh } from "../actions/auth"
+import { authConfig } from "./auth.config"
 import { deduplicatedRefresh } from "./token-cache"
+import { getExpiryFromToken } from "./jwt-utils"
+import { refreshAccessToken } from "./refresh-token"
+
+const REFRESH_BUFFER_MS = 10_000
 
 class InvalidLoginError extends CredentialsSignin {
-    code = "401";
+    code = "401"
 }
 
-export const authConfig: NextAuthConfig = {
-    secret: process.env.NEXTAUTH_SECRET,
-
-    session: {
-        strategy: "jwt",
-        updateAge: 0, // ← add this
-    },
-
-    pages: {
-        signIn: "/auth?form=login",
-    },
+export const { handlers, auth, signIn, signOut } = NextAuth({
+    ...authConfig,
 
     providers: [
         CredentialsProvider({
@@ -40,36 +33,31 @@ export const authConfig: NextAuthConfig = {
                             password: credentials?.password,
                         }),
                     }
-                );
+                )
 
-                console.log(res)
+                if (!res.ok) throw new InvalidLoginError()
 
-                if (!res.ok) {
-
-                    console.log("are we in here")
-
-                    throw new InvalidLoginError();
-                }
-
-                const data = await res.json();
+                const data = await res.json()
                 const now = Date.now()
+                const accessToken = data.data.access_token
+                const expMs = getExpiryFromToken(accessToken)
+                if (!expMs) throw new Error("Invalid token")
 
                 return {
                     id: data.data.user.id,
                     username: data.data.user.username,
-                    accessToken: data.data.access_token,
+                    accessToken,
                     refreshToken: data.data.refresh_token,
                     tokenType: data.data.token_type,
-                    expiresIn: now + (Number(data.data.expires_in) * 1000),
-                    refreshExpiresIn: now + (Number(data.data.refresh_expires_in) * 1000),
-                };
-            }
+                    expiresIn: expMs,
+                    refreshExpiresIn: now + Number(data.data.refresh_expires_in) * 1000,
+                }
+            },
         }),
     ],
 
     callbacks: {
         async jwt({ token, user }) {
-            // ── 1. Initial sign-in ────────────────────────────────────────────
             if (user) {
                 return {
                     ...token,
@@ -84,45 +72,39 @@ export const authConfig: NextAuthConfig = {
             }
 
             const now = Date.now()
-            console.log("is access valid: ", typeof token.expiresIn, token.expiresIn)
-            const isAccessValid = token.expiresIn && now < token.expiresIn
+            const expiresAt = token.expiresIn as number | undefined
 
+            if (expiresAt && now < expiresAt - REFRESH_BUFFER_MS) {
+                return token
+            }
 
-            console.log({ isAccessValid })
-
-
-            // ── 2. Access token still valid ───────────────────────────────────
-            if (isAccessValid) return token
-
-            // ── 3. Check refresh token validity ───────────────────────────────
             const isRefreshValid =
-                token.refreshExpiresIn &&
-                now < token.refreshExpiresIn
+                token.refreshExpiresIn && now < token.refreshExpiresIn
 
             if (!isRefreshValid || !token.refreshToken) {
                 return { ...token, error: "RefreshTokenExpiredError" }
             }
 
-            // ── 4. Refresh — deduplicated across concurrent requests ───────────
-            // Key: the refresh token string itself. Two requests carrying the
-            // same (not-yet-rotated) refresh token will share one HTTP call.
             try {
-
-                const refreshed = await deduplicatedRefresh(token.refreshToken, refresh)
-
-
+                const sessionKey = String(token.id ?? token.refreshToken)
+                const refreshed = await deduplicatedRefresh(
+                    sessionKey,
+                    token.refreshToken,
+                    refreshAccessToken
+                )
+                const newExpMs = getExpiryFromToken(refreshed.accessToken)
+                if (!newExpMs) throw new Error("Invalid refreshed token")
 
                 return {
                     ...token,
                     accessToken: refreshed.accessToken,
-                    refreshToken: refreshed.refreshToken,
+                    refreshToken: refreshed.refreshToken ?? token.refreshToken,
                     tokenType: refreshed.tokenType,
-                    expiresIn: Date.now() + (Number(refreshed.expiresIn) * 1000),
-                    refreshExpiresIn: Date.now() + (Number(refreshed.refreshExpiresIn) * 1000),
+                    expiresIn: newExpMs,
+                    refreshExpiresIn: Date.now() + Number(refreshed.refreshExpiresIn) * 1000,
                     error: undefined,
                 }
-            } catch (err) {
-                console.error("Token refresh failed:", err)
+            } catch {
                 return { ...token, error: "RefreshTokenError" }
             }
         },
@@ -145,10 +127,9 @@ export const authConfig: NextAuthConfig = {
 
             session.accessToken = token.accessToken
             session.tokenType = token.tokenType
+            session.expiresIn = token.expiresIn
 
             return session
         },
     },
-}
-
-export const { handlers, auth, signIn, signOut } = NextAuth(authConfig)
+})

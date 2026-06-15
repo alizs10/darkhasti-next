@@ -102,7 +102,7 @@ export default function CommentItemButtons({ user_vote, comment_id, commentable_
                     variant='ghost'
                     rightIcon={<ThumbsUpIcon className='size-3.5' />}
                     disabled={disabledType === "like"}
-                    onClick={(e) => onVote(e, 'like')} className={` py-0.5! px-1.5! ${userVote === 'like' ? 'text-success' : 'text-foreground'}`}>
+                    onClick={(e) => onVote(e, 'like')} className={`py-0.5 px-1.5 ${userVote === 'like' ? 'text-success' : 'text-foreground'}`}>
                     <Typography
                         variant="caption-xs"
                     >
@@ -113,7 +113,7 @@ export default function CommentItemButtons({ user_vote, comment_id, commentable_
                     variant='ghost'
                     rightIcon={<ThumbsDownIcon className='size-3.5' />}
                     disabled={disabledType === "dislike"}
-                    onClick={(e) => onVote(e, 'dislike')} className={`py-0.5! px-1.5! ${userVote === 'dislike' ? 'text-destructive' : 'text-foreground'}`}>
+                    onClick={(e) => onVote(e, 'dislike')} className={`py-0.5 px-1.5 ${userVote === 'dislike' ? 'text-destructive' : 'text-foreground'}`}>
 
 
                     <Typography

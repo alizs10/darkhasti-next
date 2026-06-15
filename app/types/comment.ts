@@ -35,3 +35,10 @@ export interface UpdateCommentInputs {
     deleted_main_files?: string[]
     temp_files?: string[]
 }
+
+export interface CommentRepliesReqProps {
+    comment_id: number | string;
+    order: CommentOrder,
+    per_page?: number | "all"
+    cursor?: string | null
+}

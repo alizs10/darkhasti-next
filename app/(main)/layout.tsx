@@ -1,4 +1,4 @@
-import Layout from "../components/layout/Layout";
+import MainLayout from "../components/layout/MainLayout";
 
 export default function RootLayout({
   children,
@@ -8,8 +8,8 @@ export default function RootLayout({
 
 
   return (
-    <Layout>
+    <MainLayout>
       {children}
-    </Layout>
+    </MainLayout>
   );
 }

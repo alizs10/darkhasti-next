@@ -1,6 +1,6 @@
 "use server"
 
-import { ActionResult, ApiResponse, Comment, CommentInputs, CommentOrder, UpdateCommentInputs } from "../types";
+import { ActionResult, ApiResponse, Comment, CommentInputs, CommentOrder, CommentRepliesReqProps, UpdateCommentInputs } from "../types";
 import axiosServer from "../lib/axios-server";
 import { parseApiError } from "../lib/error-handler";
 import { cached } from "../lib/cache";
@@ -127,5 +127,42 @@ export async function deleteCommentReq(comment_id: string | number): Promise<Act
             success: false,
             error: parseApiError(error),
         };
+    }
+}
+
+
+export async function allCommentsReq(): Promise<Comment[]> {
+    try {
+        const res = await axiosServer.get<ApiResponse<Comment[]>>(`/comments/all`);
+
+        if (!res.data.data) {
+            // throw new Error("error while getting all comments")
+            return []
+        }
+
+        return res?.data.data
+
+    } catch (error) {
+        console.log(error)
+        return []
+    }
+}
+
+export async function commentRepliesReq({ comment_id, order, cursor }: CommentRepliesReqProps) {
+    try {
+
+        let url = `/comments/${comment_id}/replies?order=${order}`
+
+        if (cursor) {
+            url += `&cursor=${cursor}`
+        }
+
+
+        const result = await axiosServer.get<ApiResponse<Comment[]>>(url)
+
+        return result.data;
+
+    } catch (error) {
+        console.log(error)
     }
 }

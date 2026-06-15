@@ -1,11 +1,10 @@
 "use client"
 
 import { RequestsProvider } from "@/app/context/RequestsContext"
-import { ApiResponse, PaginationData, Request, RequestOrder } from "@/app/types"
+import { PaginationData, Request, RequestOrder } from "@/app/types"
 import SelectFilter from "../common/SelectFilter";
 import { LoadMoreButton } from "./LoadMoreButton";
 import RequestsList from "./RequestsList";
-import axiosClient from "@/app/lib/axios-client";
 import Link from "next/link";
 import Search from "./Search";
 import { SearchRequestsProvider } from "@/app/context/SearchRequestsContext";
@@ -13,6 +12,7 @@ import { Button } from "../common/Button";
 import { Grid2X2Icon, Rows2Icon } from "lucide-react";
 import { useState } from "react";
 import { Typography } from "../common/Typography";
+import { requestsReq } from "@/app/actions/request";
 
 
 async function loadMoreRequests(
@@ -22,17 +22,20 @@ async function loadMoreRequests(
 
     const url = `/requests?order=${order}&cursor=${cursor}`
 
-    const result = await axiosClient.get<ApiResponse<Request[]>>(url);
+    const result = await requestsReq({
+        order,
+        cursor
+    })
 
-    const data = result.data;
+    const data = result?.data;
 
-    if (!data.success || !data.data) {
+    if (!data) {
         throw new Error('Failed to load more comments');
     }
 
     return {
-        data: data.data,
-        pagination: data.pagination as PaginationData
+        data,
+        pagination: result.pagination as PaginationData
     };
 }
 
@@ -92,22 +95,24 @@ export default function RequestsClient({ data, pagination, order, user_id, my }:
                     <div className="flex-row-center gap-x-1">
 
 
-                        <div className="sm:flex flex-nowrap gap-x-0 rounded-full bg-secondary hidden">
-                            <Button
-                                onClick={() => setLayoutType("rows")}
-                                size="icon-sm" variant="none" className={`text-muted-foreground ${layoutType === "rows" ? 'bg-primary text-primary-foreground' : ''}`}>
-                                <Rows2Icon className="size-4" />
-                            </Button>
-                            <Button
-                                onClick={() => setLayoutType("grid")}
-                                size="icon-sm" variant="none" className={`text-muted-foreground ${layoutType === "grid" ? 'bg-primary text-primary-foreground' : ''}`}>
-                                <Grid2X2Icon className="size-4" />
-                            </Button>
-                        </div>
+                        {(data && data?.length > 0) && (
+                            <div className="sm:flex flex-nowrap gap-x-0 rounded-full bg-secondary hidden">
+                                <Button
+                                    onClick={() => setLayoutType("rows")}
+                                    size="icon-sm" variant="none" className={`text-muted-foreground ${layoutType === "rows" ? 'bg-primary text-primary-foreground' : ''}`}>
+                                    <Rows2Icon className="size-4" />
+                                </Button>
+                                <Button
+                                    onClick={() => setLayoutType("grid")}
+                                    size="icon-sm" variant="none" className={`text-muted-foreground ${layoutType === "grid" ? 'bg-primary text-primary-foreground' : ''}`}>
+                                    <Grid2X2Icon className="size-4" />
+                                </Button>
+                            </div>
+                        )}
 
 
 
-                        {data && data?.length > 1 && (
+                        {(data && data?.length > 1) && (
                             <SelectFilter type="request" />
                         )}
                     </div>

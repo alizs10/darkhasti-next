@@ -1,4 +1,8 @@
 // lib/utils.ts
-export function cn(...classes: Array<string | undefined | false | null>) {
-    return classes.filter(Boolean).join(" ");
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+// This function combines classes AND resolves Tailwind conflicts
+export function cn(...inputs: ClassValue[]) {
+    return twMerge(clsx(inputs))
 }

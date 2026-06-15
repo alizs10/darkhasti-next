@@ -14,16 +14,16 @@ import DeleteRequestDetailsButton from '../common/DeleteRequestDetailsButton';
 
 interface RequestDetailsProps {
     data: Request;
-    order: CommentOrder
+    // order: CommentOrder
 }
 
 
-export default async function RequestDetails({ data, order }: RequestDetailsProps) {
+export default async function RequestDetails({ data }: RequestDetailsProps) {
     const session = await auth()
     const auth_required = !session?.user
 
     return (
-        <div className='flex flex-col flex-1 w-full px-4 sm:px-8 md:px-12 lg:px-20 xl:px-0 xl:max-w-6xl md:mx-auto py-10'>
+        <div className='flex flex-col flex-1 w-full px-4 sm:px-8 md:px-12 lg:px-20 xl:px-0 xl:max-w-6xl md:mx-auto pt-10'>
 
             <BackButton />
 
@@ -150,18 +150,6 @@ export default async function RequestDetails({ data, order }: RequestDetailsProp
                     </div>
                 </div>
             </div>
-
-
-            <Comments
-                order={order}
-                commentable='request'
-                commentable_id={data.id}
-                count={data.replies_count}
-                pinned={data.chosen_answer}
-                canReply={!!session?.user}
-                request_id={data.id}
-                request_author_id={data.author_id}
-            />
         </div>
     )
 }

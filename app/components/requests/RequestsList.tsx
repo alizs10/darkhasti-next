@@ -1,6 +1,6 @@
 import { useRequests } from '@/app/context/RequestsContext'
 import RequestItem from './RequestItem'
-import NoRequests from './my/NoRequests';
+import NoRequests from './NoRequests';
 
 interface RequestsListProps {
   user_id?: string | number | null;
@@ -21,8 +21,8 @@ export default function RequestsList({ layout = 'grid', user_id, my }: RequestsL
         )}
       </div>
 
-      {my && requests.length === 0 && (
-        <NoRequests />
+      {requests.length === 0 && (
+        <NoRequests my={my} />
       )}
 
 

@@ -73,7 +73,7 @@ export default function RelatedRequestsClient({ user, data }: RelatedRequestsCli
     }
 
     return (
-        <div className='w-full px-4 sm:px-8 md:px-12 lg:px-20 xl:px-0 xl:max-w-6xl md:mx-auto py-10 flex flex-col border-b border-muted'>
+        <div className='w-full px-4 sm:px-8 md:px-12 lg:px-20 xl:px-0 xl:max-w-6xl md:mx-auto py-10 flex flex-col'>
 
             <div className="flex-center-between min-h-7">
                 <Typography

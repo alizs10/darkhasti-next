@@ -117,7 +117,7 @@ export function Button(props: ButtonProps) {
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20",
         variantClasses[variant],
         sizeClasses[size],
-        className
+        className,
     ));
 
     const content = (

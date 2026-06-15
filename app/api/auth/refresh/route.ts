@@ -1,13 +1,20 @@
-// import { auth } from "@/app/lib/auth";
-// import { deduplicatedRefresh } from "@/app/lib/token-cache";
+import { auth } from "@/app/lib/auth"
+import { NextResponse } from "next/server"
 
-// export async function POST() {
+export async function POST() {
+    const session = await auth()
 
-//     const session = await auth();
+    if (session?.error) {
+        return NextResponse.json({ error: session.error }, { status: 401 })
+    }
 
-//     const token = await 
+    if (!session?.accessToken) {
+        return NextResponse.json({ error: "NoSession" }, { status: 401 })
+    }
 
-//     const refreshed = await deduplicatedRefresh(session?., refresh)
-
-
-// }
+    return NextResponse.json({
+        accessToken: session.accessToken,
+        tokenType: session.tokenType,
+        expiresIn: session.expiresIn,
+    })
+}
