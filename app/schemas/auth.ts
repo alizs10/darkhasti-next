@@ -1,6 +1,41 @@
 import { z } from "zod";
 import { ValidationMessages } from "@/app/lib/validation-messages";
 
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/;
+
+const passwordSchema = z
+    .string()
+    .min(1, ValidationMessages.required)
+    .min(
+        8,
+        ValidationMessages.minLength(
+            "کلمه عبور",
+            8
+        )
+    )
+    .max(
+        64,
+        ValidationMessages.maxLength(
+            "کلمه عبور",
+            64
+        )
+    )
+    .regex(
+        passwordRegex,
+        ValidationMessages.passwordComplexity
+    );
+
+const passwordConfirmationSchema = z
+    .string()
+    .min(1, ValidationMessages.required)
+    .max(
+        64,
+        ValidationMessages.maxLength(
+            "تکرار کلمه عبور",
+            64
+        )
+    );
+
 export const registerSchema = z
     .object({
         username: z
@@ -14,20 +49,9 @@ export const registerSchema = z
                 )
             ),
 
-        password: z
-            .string()
-            .min(1, ValidationMessages.required)
-            .min(
-                8,
-                ValidationMessages.minLength(
-                    "کلمه عبور",
-                    8
-                )
-            ),
+        password: passwordSchema,
 
-        password_confirmation: z
-            .string()
-            .min(1, ValidationMessages.required),
+        password_confirmation: passwordConfirmationSchema,
     })
     .refine(
         (data) =>
@@ -61,21 +85,17 @@ export const changePasswordSchema = z
                     "کلمه عبور فعلی",
                     8
                 )
-            ),
-        new_password: z
-            .string()
-            .min(1, ValidationMessages.required)
-            .min(
-                8,
-                ValidationMessages.minLength(
-                    "کلمه عبور جدید",
-                    8
+            )
+            .max(
+                64,
+                ValidationMessages.maxLength(
+                    "کلمه عبور فعلی",
+                    64
                 )
             ),
+        new_password: passwordSchema,
 
-        new_password_confirmation: z
-            .string()
-            .min(1, ValidationMessages.required),
+        new_password_confirmation: passwordConfirmationSchema,
     })
     .refine(
         (data) =>

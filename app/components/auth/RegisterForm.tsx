@@ -8,7 +8,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 
-import { ArrowLeftIcon } from 'lucide-react'
+import { ArrowLeftIcon, CheckCircleIcon, CheckIcon, XCircleIcon, XIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
@@ -49,6 +49,7 @@ export default function RegisterForm() {
         formState: {
             errors,
             isValid,
+            // touchedFields,
         },
     } = useForm<RegisterFormValues>({
         resolver: zodResolver(registerSchema),
@@ -61,6 +62,31 @@ export default function RegisterForm() {
     })
 
     const username = watch('username')
+    const password = watch('password')
+    // const passwordTouched = !!touchedFields.password
+
+    const passwordRules = [
+        {
+            label: 'حداقل ۸ کاراکتر',
+            isValid: (password || '').length >= 8,
+        },
+        {
+            label: 'حداقل یک حرف بزرگ',
+            isValid: /[A-Z]/.test(password || ''),
+        },
+        {
+            label: 'حداقل یک حرف کوچک',
+            isValid: /[a-z]/.test(password || ''),
+        },
+        {
+            label: 'حداقل یک عدد',
+            isValid: /\d/.test(password || ''),
+        },
+        {
+            label: 'حداقل یک کاراکتر ویژه',
+            isValid: /[^A-Za-z0-9]/.test(password || ''),
+        },
+    ]
 
     const debouncedUsernameTerm =
         useDebounce(username, 1000)
@@ -130,7 +156,7 @@ export default function RegisterForm() {
         )
 
         router.push(
-            '/auth?form=login'
+            `/auth?form=login&username=${username}`
         )
     }
 
@@ -187,6 +213,33 @@ export default function RegisterForm() {
                             ?.message
                     }
                 />
+
+                {password.length > 0 && (
+                    <div className="flex flex-col gap-y-1">
+                        {passwordRules.map(
+                            ({ label, isValid }) => (
+                                <div key={label} className="flex-row-center gap-x-1.5">
+                                    {isValid ? (
+                                        <CheckIcon className='size-3 text-success' />
+                                    ) : (
+                                        <XIcon className='size-3 text-muted-foreground' />
+                                    )}
+                                    <Typography
+
+                                        variant="caption-xxs"
+                                        className={
+                                            isValid
+                                                ? 'text-success'
+                                                : 'text-muted-foreground'
+                                        }
+                                    >
+                                        {label}
+                                    </Typography>
+                                </div>
+                            )
+                        )}
+                    </div>
+                )}
 
                 <PasswordInput
                     {...register('password_confirmation')}

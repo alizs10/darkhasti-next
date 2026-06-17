@@ -14,6 +14,9 @@ export const ValidationMessages = {
 
     passwordMismatch: "تکرار کلمه عبور با کلمه عبور مطابقت ندارد",
 
+    passwordComplexity:
+        "کلمه عبور باید شامل حداقل یک حرف بزرگ، یک حرف کوچک، یک عدد و یک کاراکتر ویژه باشد",
+
     // New message for username availability
     usernameTaken: "این نام کاربری قبلاً ثبت شده است",
 };  

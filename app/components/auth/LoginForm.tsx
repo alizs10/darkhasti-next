@@ -28,6 +28,8 @@ export default function LoginForm() {
     const searchParams = useSearchParams()
     const backUrl =
         searchParams.get('back_url')
+    const init_username =
+        searchParams.get('username')
 
     const router = useRouter()
 
@@ -47,7 +49,7 @@ export default function LoginForm() {
         ),
         mode: 'onChange',
         defaultValues: {
-            username: '',
+            username: init_username ?? "",
             password: '',
         },
     })
@@ -78,13 +80,21 @@ export default function LoginForm() {
             return
         }
 
-        setIsLoading(false)
 
-        router.replace(
-            result?.url ||
-            backUrl ||
-            '/'
+        toast.success(
+            'با موفقیت وارد شدید؛ درحال انتقال...'
         )
+
+        setTimeout(() => {
+            setIsLoading(false)
+
+            router.replace(
+                result?.url ||
+                backUrl ||
+                '/'
+            )
+
+        }, 2000)
     }
 
     return (
