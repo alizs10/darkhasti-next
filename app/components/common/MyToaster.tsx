@@ -9,7 +9,9 @@ export default function MyToaster() {
                     backgroundColor: 'var(--background)',
                     color: 'var(--foreground)',
                     borderColor: 'var(--border)',
+                    fontFamily: "Estedad, Arial, Helvetica, sans-serif"
                 },
+
             }}
         />
     )

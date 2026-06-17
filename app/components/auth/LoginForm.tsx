@@ -107,6 +107,7 @@ export default function LoginForm() {
                 <TextInput
                     {...register('username')}
                     placeholder="نام کاربری"
+                    autoComplete='username'
                     error={
                         errors.username
                             ?.message
@@ -116,6 +117,7 @@ export default function LoginForm() {
                 <PasswordInput
                     {...register('password')}
                     placeholder="کلمه عبور"
+                    autoComplete='current-password'
                     error={
                         errors.password
                             ?.message

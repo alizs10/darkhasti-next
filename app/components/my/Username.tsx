@@ -1,7 +1,7 @@
 "use client"
 
 import { UserPenIcon } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "../common/Button"
 import { Typography } from "../common/Typography"
 import { useForm } from "react-hook-form"
@@ -12,6 +12,9 @@ import z from "zod"
 import { toast } from "sonner"
 import { changeUsernameReq } from "@/app/actions/profile"
 import { logoutHandler } from "./Logout"
+import { checkUsernameReq } from "@/app/actions/auth"
+import { useDebounce } from "@/app/hooks/useDebounce"
+import clsx from "clsx"
 
 type ChangeUsernameFormValues = z.infer<
     typeof changeUsernameSchema
@@ -20,8 +23,18 @@ type ChangeUsernameFormValues = z.infer<
 export default function Username({ current_username }: { current_username?: string }) {
     const [isLoading, setIsLoading] =
         useState(false)
+    const [
+        usernameAvailability,
+        setUsernameAvailability,
+    ] = useState<boolean | null>(null)
+    const [
+        isCheckingUsername,
+        setIsCheckingUsername,
+    ] = useState(false)
+
     const {
         register,
+        watch,
         handleSubmit,
         formState: {
             errors,
@@ -37,11 +50,56 @@ export default function Username({ current_username }: { current_username?: stri
         },
     })
 
+    const username = watch('username')
+    const debouncedUsernameTerm =
+        useDebounce(username, 1000)
+
+    useEffect(() => {
+        if (
+            !debouncedUsernameTerm ||
+            debouncedUsernameTerm.trim().length < 3 ||
+            debouncedUsernameTerm === current_username
+        ) {
+            setUsernameAvailability(null)
+            return
+        }
+
+        const checkUsername = async () => {
+            setIsCheckingUsername(true)
+
+            try {
+                const res =
+                    await checkUsernameReq({
+                        username:
+                            debouncedUsernameTerm.trim(),
+                    })
+
+                const isAvailable =
+                    res.data?.is_available ??
+                    false
+
+                setUsernameAvailability(
+                    isAvailable
+                )
+            } catch (error) {
+                console.error(error)
+            } finally {
+                setIsCheckingUsername(
+                    false
+                )
+            }
+        }
+
+        checkUsername()
+    }, [
+        debouncedUsernameTerm,
+        current_username,
+    ])
 
     const onSubmit = async (
         data: ChangeUsernameFormValues
     ) => {
-        if (isLoading) return
+        if (isLoading || !usernameAvailability) return
 
         setIsLoading(true)
 
@@ -80,18 +138,49 @@ export default function Username({ current_username }: { current_username?: stri
                 <Typography variant="body" weight="medium" className="border-b border-muted pb-2">
                     نام کاربری
                 </Typography>
-                <TextInput
-                    {...register('username')}
-                    placeholder="نام کاربری"
-                    error={
-                        errors.username
-                            ?.message
-                    }
-                />
+                <div className="flex flex-col gap-y-0.5">
+                    <TextInput
+                        {...register('username')}
+                        placeholder="نام کاربری"
+                        error={
+                            errors.username
+                                ?.message
+                        }
+                    />
+
+                    {(isCheckingUsername ||
+                        usernameAvailability !==
+                        null) && (
+                            <Typography
+                                variant="caption-xs"
+                                className={clsx({
+                                    'text-muted-foreground':
+                                        isCheckingUsername,
+
+                                    'text-success':
+                                        usernameAvailability &&
+                                        !isCheckingUsername,
+
+                                    'text-destructive':
+                                        !usernameAvailability &&
+                                        !isCheckingUsername,
+                                })}
+                            >
+                                {isCheckingUsername
+                                    ? 'در حال بررسی نام کاربری...'
+                                    : usernameAvailability
+                                        ? 'نام کاربری در دسترس است'
+                                        : 'نام کاربری دیگری انتخاب کنید. این نام کاربری قبلاً ثبت شده است.'}
+                            </Typography>
+                        )}
+                </div>
+
                 <Button
                     disabled={
                         isLoading ||
-                        !isValid
+                        !isValid ||
+                        isCheckingUsername ||
+                        usernameAvailability === false
                     }
                     type='submit'
                     className=""
