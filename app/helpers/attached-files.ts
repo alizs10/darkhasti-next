@@ -41,17 +41,53 @@ export function formatFileSize(bytes: number, decimals: number = 2): string {
     return `${formatted} ${sizes[i]}`;
 }
 
-export function isMediaCheck(mimeType: string): boolean | "image" | "video" {
+export function isMediaCheck(
+    mimeType: string
+): false | "image" | "video" {
+    const IMAGE_MIME_TYPES = [
+        // Raster images
+        "image/png",
+        "image/jpeg",
+        "image/jpg",
+        "image/gif",
+        "image/webp",
+        "image/avif",
+        "image/apng",
+        "image/bmp",
+        "image/x-icon",
+        "image/vnd.microsoft.icon",
+        "image/tiff",
 
-    const IMAGE_MIME_TYPES = ["image/png", "image/jpg", "image/jpeg", "image/webp", "image/svg"]
+        // Vector images
+        "image/svg+xml",
+    ];
+
+    const VIDEO_MIME_TYPES = [
+        // MP4
+        "video/mp4",
+
+        // Web-native formats
+        "video/webm",
+        "video/ogg",
+
+        // Common additional formats
+        "video/quicktime", // .mov
+        "video/x-msvideo", // .avi
+        "video/x-matroska", // .mkv
+        "video/mpeg", // .mpeg/.mpg
+        "video/3gpp", // .3gp
+        "video/3gpp2", // .3g2
+    ];
 
     if (IMAGE_MIME_TYPES.includes(mimeType)) {
-        return "image"
+        return "image";
     }
 
+    if (VIDEO_MIME_TYPES.includes(mimeType)) {
+        return "video";
+    }
 
-    return false
-
+    return false;
 }
 
 export function downloadFile(file: AttachedFile) {

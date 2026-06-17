@@ -1,5 +1,5 @@
-import { FileIcon, MessageCircleCheck, MessageCircleCheckIcon, MessagesSquareIcon, ReplyIcon, ThumbsDownIcon, ThumbsUpIcon, User2Icon, UserIcon } from 'lucide-react'
-import { Comment, CommentOrder } from '@/app/types'
+import { MessageCircleCheckIcon, User2Icon } from 'lucide-react'
+import { Comment } from '@/app/types'
 import Comments from './Comments'
 import BackButton from '../common/BackButton'
 import momentFa from '@/app/lib/moment'
@@ -8,27 +8,27 @@ import CommentDetailsButtons from './CommentDetailsButtons'
 import ReplyButton from '../common/ReplyButton'
 import { auth } from '@/app/lib/auth'
 import Ancestors from './Ancestors/Ancestors'
-import ReadComments from './ReadComments'
 import AttachedFiles from '../common/attach-files/AttachedFiles'
 import { Typography } from '../common/Typography'
 import EditButton from '../common/EditButton'
-import DeleteCommentButton from '../common/DeleteCommentButton'
 import DeleteCommentDetailsButton from '../common/DeleteCommentDetailsButton'
 
 interface CommentDetailsProps {
-    order: CommentOrder
     data: Comment
 }
 
-export default async function CommentDetails({ order, data }: CommentDetailsProps) {
+export default async function CommentDetails({ data }: CommentDetailsProps) {
 
     const session = await auth()
     const auth_required = !session?.user
 
+    console.log("ancestors comment: ", data.user_vote_status)
+
+
     return (
         <AuthRequiredProvider>
 
-            <div className='flex flex-col flex-1 w-full px-4 sm:px-8 md:px-12 lg:px-20 xl:px-0 xl:max-w-6xl md:mx-auto py-10'>
+            <div className='flex flex-col flex-1 w-full px-4 sm:px-8 md:px-12 lg:px-20 xl:px-0 xl:max-w-6xl md:mx-auto pt-10'>
 
                 <BackButton url={data.parent_id ? `/comment/${data.parent_id}` : `/requests/${data.request_id}`} />
 
@@ -139,21 +139,21 @@ export default async function CommentDetails({ order, data }: CommentDetailsProp
 
 
 
-                    <Comments
-                        request_id={data.request_id}
-                        request_author_id={data.author_id}
-                        canReply={!!session?.user}
-                        order={order}
-                        commentable='comment'
-                        commentable_id={data.id}
-                        count={data.replies_count}
-                    />
                 </div>
 
 
 
 
             </div>
+            <Comments
+                request_id={data.request_id}
+                request_author_id={data.author_id}
+                canReply={!!session?.user}
+                user={session?.user}
+                commentable='comment'
+                commentable_id={data.id}
+                count={data.replies_count}
+            />
         </AuthRequiredProvider>
     )
 }

@@ -11,6 +11,7 @@ import AttachedFiles from '../common/attach-files/AttachedFiles';
 import EditButton from '../common/EditButton';
 import { Typography } from '../common/Typography';
 import DeleteRequestDetailsButton from '../common/DeleteRequestDetailsButton';
+import { getTextDirection } from '@/app/helpers';
 
 interface RequestDetailsProps {
     data: Request;
@@ -21,6 +22,9 @@ interface RequestDetailsProps {
 export default async function RequestDetails({ data }: RequestDetailsProps) {
     const session = await auth()
     const auth_required = !session?.user
+
+    const titleDir = getTextDirection(data.title)
+    const descDir = getTextDirection(data.description)
 
     return (
         <div className='flex flex-col flex-1 w-full px-4 sm:px-8 md:px-12 lg:px-20 xl:px-0 xl:max-w-6xl md:mx-auto pt-10'>
@@ -108,7 +112,8 @@ export default async function RequestDetails({ data }: RequestDetailsProps) {
                     </div>
 
                     <Typography
-                        className='mt-4'
+                        className={`${titleDir === 'ltr' ? 'dir-ltr' : ''} mt-4`}
+
                         variant="h4"
                         weight='semibold'
                     >
@@ -116,7 +121,7 @@ export default async function RequestDetails({ data }: RequestDetailsProps) {
                     </Typography>
 
                     <Typography
-                        className='mt-4 mb-8'
+                        className={`${descDir === 'ltr' ? 'dir-ltr' : ''} mt-4 mb-8`}
                         variant="pre"
                     >
                         {data.description}

@@ -57,10 +57,10 @@ export function CommentsProvider({
 
         if (!init_data) return
 
-        console.log({ init_data })
-
         setComments(init_data);
-        setCommentCount(init_data.length)
+        let init_count = init_data.length
+        init_count = init_chosen_answer ? init_count + 1 : init_count
+        setCommentCount(init_count)
     }, [init_data]);
 
     useEffect(() => {

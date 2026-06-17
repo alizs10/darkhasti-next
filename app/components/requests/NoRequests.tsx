@@ -12,10 +12,10 @@ export default function NoRequests({ my = false }: NoRequestsProps) {
 
 
     return (
-        <div className='flex-center flex-col gap-y-4 py-10'>
+        <div className='flex-center flex-col gap-y-8 md:gap-y-10 py-10'>
 
             <Typography
-                variant='body-sm'
+                variant='body'
             >
                 {message}
             </Typography>
@@ -23,6 +23,7 @@ export default function NoRequests({ my = false }: NoRequestsProps) {
 
             {my && (
                 <Button
+                    variant='outline-primary'
                     href='/new-request'
                     size='md'
                     rightIcon={<PlusIcon className='size-4' />}

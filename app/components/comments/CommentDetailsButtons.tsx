@@ -76,7 +76,7 @@ export default function CommentDetailsButtons({ user_vote, comment_id, auth_requ
     return (
         <div className="flex-row-center gap-x-4">
             <div className="flex-row-center gap-x-0">
-                <Button variant='ghost' size="sm" className='px-2! py-0.5!' onClick={(e) => voteHandler(e, "like")}
+                <Button variant='ghost' size="sm" className={`py-0.5 px-1.5 ${userVote === 'like' ? 'text-success' : 'text-foreground'}`} onClick={(e) => voteHandler(e, "like")}
                     disabled={disabledType === 'like'}
                     rightIcon={<ThumbsUpIcon className='size-3.5' />}
                 >
@@ -87,7 +87,7 @@ export default function CommentDetailsButtons({ user_vote, comment_id, auth_requ
                     </Typography>
 
                 </Button>
-                <Button variant='ghost' size="sm" className='px-2! py-0.5!' onClick={(e) => voteHandler(e, "dislike")}
+                <Button variant='ghost' size="sm" className={`py-0.5 px-1.5 ${userVote === 'dislike' ? 'text-destructive' : 'text-foreground'}`} onClick={(e) => voteHandler(e, "dislike")}
                     disabled={disabledType === 'dislike'}
                     rightIcon={<ThumbsDownIcon className='size-3.5' />}
                 >

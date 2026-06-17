@@ -16,6 +16,7 @@ interface AncestorsCommentProps {
 }
 
 export default function AncestorsComment({ comment, user }: AncestorsCommentProps) {
+
     return (
 
         <div className="relative mt-8">

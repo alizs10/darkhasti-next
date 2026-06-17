@@ -10,9 +10,10 @@ interface ViewMediaModalProps {
     open: boolean;
     onClose: () => void;
     mediaFile: AttachedFile
+    mediaType: "video" | "image"
 }
 
-export default function ViewMediaModal({ open, onClose, mediaFile }: ViewMediaModalProps) {
+export default function ViewMediaModal({ open, onClose, mediaFile, mediaType }: ViewMediaModalProps) {
 
     function stopPropagation(e: MouseEvent<HTMLDivElement>) {
         e.preventDefault()
@@ -32,8 +33,17 @@ export default function ViewMediaModal({ open, onClose, mediaFile }: ViewMediaMo
                 </Button>
 
 
-                <img src={`${process.env.NEXT_PUBLIC_STORAGE_URL}/${mediaFile.file_path}`} className='mt-2 w-full h-auto group-hover:hidden transition-all duration-200 object-cover' />
+                <div className="mt-2 rounded-2xl overflow-clip">
+                    {mediaType === 'image' ? (
+                        <img src={`${process.env.NEXT_PUBLIC_STORAGE_URL}/${mediaFile.file_path}`} className='w-full h-auto group-hover:hidden transition-all duration-200 object-cover' />
 
+                    ) : (
+                        <video className='dir-ltr w-full h-auto group-hover:hidden transition-all duration-200 object-cover' controls>
+                            <source src={`${process.env.NEXT_PUBLIC_STORAGE_URL}/${mediaFile.file_path}`} />
+                        </video>
+
+                    )}
+                </div>
 
                 <Button
                     variant='outline-primary'

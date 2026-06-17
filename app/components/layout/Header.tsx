@@ -1,9 +1,12 @@
+
+
 import Link from 'next/link'
 import ThemeToggle from '../common/ThemeToggle'
 import { auth } from '@/app/lib/auth'
 import { Button } from '../common/Button'
 import { Typography } from '../common/Typography'
 import Logo from '../common/Logo'
+import UserDropdown from './UserDropdown'
 
 export default async function Header() {
 
@@ -24,15 +27,16 @@ export default async function Header() {
             <div className='flex-row-center gap-x-1 sm:gap-x-2'>
 
                 {session ? (
-                    <Button href={"/my"} variant='ghost' size='md'
-                        className='hover:bg-primary! hover:text-primary-foreground!'
-                    >
-                        <Typography variant="caption" weight='medium'>
-                            سلام، {session?.user?.username
-                            }
-                        </Typography>
+                    // <Button href={"/my"} variant='ghost' size='md'
+                    //     className='hover:bg-primary! hover:text-primary-foreground!'
+                    // >
+                    //     <Typography variant="caption" weight='medium'>
+                    //         سلام، {session?.user?.username
+                    //         }
+                    //     </Typography>
 
-                    </Button>
+                    // </Button>
+                    <UserDropdown user={session.user} />
                 ) : (
                     <Button href={"/auth"} variant='ghost' size='md'
                         className='hover:bg-primary! hover:text-primary-foreground!'

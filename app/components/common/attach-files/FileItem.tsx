@@ -2,7 +2,7 @@
 
 import { downloadFile, formatFileSize, getFileNameAndExt, isMediaCheck } from '@/app/helpers';
 import { AttachedFile } from '@/app/types';
-import { ExpandIcon, FileDownIcon, FileIcon, GalleryVerticalIcon, ImageIcon } from 'lucide-react'
+import { ExpandIcon, FileDownIcon, FileIcon, FilmIcon, ImageIcon } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import ViewMediaModal from '../../modals/ViewMediaModal';
 import { Typography } from '../Typography';
@@ -62,6 +62,12 @@ export default function FileItem({ file, theme = "default" }: FileItemProps) {
                             <ExpandIcon className='size-5 lg:size-6 hidden group-hover:block text-success transition-all duration-200' />
                         </>
 
+                    ) : isMedia === "video" ? (
+                        <>
+                            <FilmIcon className='size-5 lg:size-6 group-hover:hidden transition-all duration-200' />
+
+                            <ExpandIcon className='size-5 lg:size-6 hidden group-hover:block text-success transition-all duration-200' />
+                        </>
                     ) : (
                         <>
                             <FileIcon className='size-5 lg:size-6 group-hover:hidden transition-all duration-200' />
@@ -87,7 +93,7 @@ export default function FileItem({ file, theme = "default" }: FileItemProps) {
                 </div>
             </button>
 
-            {mediaModalOpen && <ViewMediaModal mediaFile={file} onClose={toggleMediaModal} open={mediaModalOpen} />}
+            {(mediaModalOpen && isMedia) && <ViewMediaModal mediaFile={file} onClose={toggleMediaModal} open={mediaModalOpen} mediaType={isMedia} />}
         </>
 
     )
