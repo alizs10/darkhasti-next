@@ -12,6 +12,7 @@ import { Typography } from '../common/Typography';
 import DeleteCommentButton from '../common/DeleteCommentButton';
 import { useComments } from '@/app/context/CommentsContext';
 import ToggleChosenAnswerButton from './ToggleChosenAnswerButton';
+import Avatar from '../common/Avatar';
 
 interface CommentItem extends Comment {
   editable?: boolean;
@@ -42,9 +43,14 @@ export default function CommentItem({ commentable_id, commentable, comment, user
         <div className="flex-row-center gap-x-2">
 
 
-          <div className="size-10 rounded-full bg-secondary flex-center">
+          {/* <div className="size-10 rounded-full bg-secondary flex-center">
             <User2Icon className='size-6 text-muted-foreground' />
-          </div>
+          </div> */}
+
+          <Avatar
+            className='bg-muted'
+            username={comment.author?.username ?? "?"}
+          />
 
 
           <div className="flex flex-col">

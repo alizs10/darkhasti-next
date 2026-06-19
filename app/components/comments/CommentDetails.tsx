@@ -12,6 +12,7 @@ import AttachedFiles from '../common/attach-files/AttachedFiles'
 import { Typography } from '../common/Typography'
 import EditButton from '../common/EditButton'
 import DeleteCommentDetailsButton from '../common/DeleteCommentDetailsButton'
+import Avatar from '../common/Avatar'
 
 interface CommentDetailsProps {
     data: Comment
@@ -45,9 +46,14 @@ export default async function CommentDetails({ data }: CommentDetailsProps) {
                             <div className="flex-row-center gap-x-2">
 
 
-                                <div className="size-10 rounded-full bg-muted flex-center">
+                                {/* <div className="size-10 rounded-full bg-muted flex-center">
                                     <User2Icon className='size-6 text-muted-foreground' />
-                                </div>
+                                </div> */}
+                                <Avatar
+                                    className='bg-muted'
+                                    username={data.author?.username ?? "?"}
+                                />
+
 
 
                                 <div className="flex flex-col">

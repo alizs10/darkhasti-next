@@ -9,6 +9,7 @@ interface TextareaInputProps
     extends TextareaHTMLAttributes<HTMLTextAreaElement> {
     error?: string
     children?: React.ReactNode
+    currentLength?: number
     rows?: number
 }
 
@@ -22,23 +23,27 @@ const TextareaInput = forwardRef<
             children,
             className,
             rows = 10,
+            maxLength,
+            currentLength,
             ...props
         },
         ref
     ) => {
+
         return (
             <div className="flex flex-col gap-y-0.5">
                 <div className="relative overflow-clip">
-                    <textarea
-                        ref={ref}
-                        {...props}
-                        rows={rows}
-                        className={`
+                    <div className="relative">
+                        <textarea
+                            ref={ref}
+                            {...props}
+                            rows={rows}
+                            className={`
                             border
                             ${error
-                                ? 'border-destructive text-destructive'
-                                : 'border-muted text-foreground'
-                            }
+                                    ? 'border-destructive text-destructive'
+                                    : 'border-muted text-foreground'
+                                }
                             resize-none
                             flex-1
                             w-full
@@ -50,7 +55,18 @@ const TextareaInput = forwardRef<
                             text-sm
                             ${className ?? ''}
                         `}
-                    />
+                        />
+
+                        {(maxLength && currentLength !== undefined && currentLength > 0) && (
+                            <div className="absolute left-2 bottom-3.5 backdrop-blur-md rounded-full px-3 py-0.5 bg-secondary/40">
+
+                                <Typography variant='caption-xs'>
+                                    <Typography variant='caption-xs' className={`${currentLength > maxLength ? 'text-destructive' : 'text-primary'}`}>{currentLength}</Typography>/{maxLength}
+                                </Typography>
+
+                            </div>
+                        )}
+                    </div>
 
                     {children}
                 </div>

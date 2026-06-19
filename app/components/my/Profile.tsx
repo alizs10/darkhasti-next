@@ -1,38 +1,22 @@
 // components/my/Profile.tsx
-import { LogOutIcon, TrashIcon } from "lucide-react";
-import Link from "next/link";
 import Username from "./Username";
 import ChangePassword from "./ChangePassword";
-import axiosServer from "@/app/lib/axios-server";
-import { ApiResponse } from "@/app/types";
 import { auth } from "@/app/lib/auth";
 import Logout from "./Logout";
 import DeleteAcc from "./DeleteAcc";
 import { Button } from "../common/Button";
 import { Typography } from "../common/Typography";
+import { ProfileStats } from "@/app/types";
 
-interface ProfileResponse {
-    stats: {
-        requests_count: number;
-        comments_count: number;
-        chosen_comments_count: number
-    }
+interface ProfileProps {
+    stats: ProfileStats
 }
 
-// Accept the token so we don't need a second auth() call inside getUserStats
-async function getUserStats() {
-    try {
-        const result = await axiosServer.get<ApiResponse<ProfileResponse>>("/profile/stats")
-        return result.data?.data?.stats;
-    } catch (error) {
-        // console.log(error)
-        console.log("error getting stats")
-    }
-}
-
-export default async function Profile() {
+export default async function Profile({ stats }: ProfileProps) {
     // Single auth() call for the entire component — token is reused everywhere
     const session = await auth()
+
+    console.log("session in profile is: ", session)
 
     if (!session?.user) {
         return null
@@ -40,12 +24,7 @@ export default async function Profile() {
 
     const { user } = session;
 
-    // Pass the token down so getUserStats doesn't trigger another auth() call
-    const stats = await getUserStats()
 
-    if (!stats) {
-        return null;
-    }
 
     return (
         <div className='py-10 flex flex-col px-4 sm:px-8 md:px-12 lg:px-20 xl:px-30 max-w-6xl md:mx-auto flex-1 w-full'>

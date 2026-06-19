@@ -12,6 +12,7 @@ import EditButton from '../common/EditButton';
 import { Typography } from '../common/Typography';
 import DeleteRequestDetailsButton from '../common/DeleteRequestDetailsButton';
 import { getTextDirection } from '@/app/helpers';
+import Avatar from '../common/Avatar';
 
 interface RequestDetailsProps {
     data: Request;
@@ -47,9 +48,14 @@ export default async function RequestDetails({ data }: RequestDetailsProps) {
                         <div className="flex-row-center gap-x-2">
 
 
-                            <div className="size-10 rounded-full bg-muted flex-center">
+                            {/* <div className="size-10 rounded-full bg-muted flex-center">
                                 <User2Icon className='size-6 text-muted-foreground' />
-                            </div>
+                            </div> */}
+
+                            <Avatar
+                                className='bg-muted'
+                                username={data.author?.username ?? "?"}
+                            />
 
 
                             <div className="flex flex-col">

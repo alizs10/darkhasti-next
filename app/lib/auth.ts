@@ -1,9 +1,10 @@
 import NextAuth, { CredentialsSignin } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { authConfig } from "./auth.config"
-import { deduplicatedRefresh } from "./token-cache"
+// import { deduplicatedRefresh } from "./token-cache"
 import { getExpiryFromToken } from "./jwt-utils"
 import { refreshAccessToken } from "./refresh-token"
+import { deduplicatedRefresh } from "./refresh-lock"
 
 const REFRESH_BUFFER_MS = 10_000
 
@@ -43,6 +44,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 const expMs = getExpiryFromToken(accessToken)
                 if (!expMs) throw new Error("Invalid token")
 
+                const rawRefreshExp = Number(data.data.refresh_expires_in)
+                const refreshExpiresAt = rawRefreshExp > 1e12
+                    ? rawRefreshExp
+                    : now + rawRefreshExp * 1000
+
                 return {
                     id: data.data.user.id,
                     username: data.data.user.username,
@@ -50,7 +56,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     refreshToken: data.data.refresh_token,
                     tokenType: data.data.token_type,
                     expiresIn: expMs,
-                    refreshExpiresIn: now + Number(data.data.refresh_expires_in) * 1000,
+                    refreshExpiresIn: refreshExpiresAt,
                 }
             },
         }),
@@ -86,7 +92,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             }
 
             try {
-                const sessionKey = String(token.id ?? token.refreshToken)
+                const sessionKey = String(token.id ?? token.username)
                 const refreshed = await deduplicatedRefresh(
                     sessionKey,
                     token.refreshToken,
@@ -95,16 +101,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 const newExpMs = getExpiryFromToken(refreshed.accessToken)
                 if (!newExpMs) throw new Error("Invalid refreshed token")
 
+                const now = Date.now()
+                const refreshExpiresAt = refreshed.refreshExpiresIn > 1e12
+                    ? refreshed.refreshExpiresIn
+                    : now + Number(refreshed.refreshExpiresIn) * 1000
+
                 return {
                     ...token,
                     accessToken: refreshed.accessToken,
-                    refreshToken: refreshed.refreshToken ?? token.refreshToken,
+                    refreshToken: refreshed.refreshToken,
                     tokenType: refreshed.tokenType,
                     expiresIn: newExpMs,
-                    refreshExpiresIn: Date.now() + Number(refreshed.refreshExpiresIn) * 1000,
+                    refreshExpiresIn: refreshExpiresAt,
                     error: undefined,
                 }
-            } catch {
+            } catch (error) {
+                console.log("RefreshTokenError: ", error)
                 return { ...token, error: "RefreshTokenError" }
             }
         },

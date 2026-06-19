@@ -7,6 +7,9 @@ export interface TokenData {
 }
 
 export async function refreshAccessToken(refreshToken: string): Promise<TokenData> {
+
+    console.log("calling to refresh token with rt: ", refreshToken)
+
     const response = await fetch(`${process.env.BACKEND_API_URL}/refresh`, {
         method: "POST",
         headers: {
@@ -15,11 +18,14 @@ export async function refreshAccessToken(refreshToken: string): Promise<TokenDat
         },
     })
 
+
     if (!response.ok) {
         throw new Error(`Refresh failed: ${response.status}`)
     }
 
     const data = await response.json()
+    console.log("new refresh token: ", data.data.refresh_token)
+    // console.log(data)
 
     return {
         access_token: data.data.access_token,

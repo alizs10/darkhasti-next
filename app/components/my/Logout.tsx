@@ -10,6 +10,8 @@ export async function logoutHandler() {
 
     const res = await logoutReq()
 
+    console.log(res)
+
     if (!res) return
 
     await signOut()

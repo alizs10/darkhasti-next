@@ -7,6 +7,7 @@ import { Button } from '../common/Button';
 import { Typography } from '../common/Typography';
 import { LogOutIcon, TablePropertiesIcon, UserIcon } from 'lucide-react';
 import { logoutHandler } from '../my/Logout';
+import { useRouter } from 'next/navigation';
 
 
 interface UserDropdownProps {
@@ -32,11 +33,20 @@ export default function UserDropdown({ user }: UserDropdownProps) {
 
     const [open, setOpen] = useState(false)
 
+    const router = useRouter()
+
     function toggle() {
         setOpen(prev => !prev)
     }
 
     const containerRef = useClickOutside<HTMLUListElement>(() => setOpen(false))
+
+    function closeDropdownWrapper(cb: () => void) {
+
+        setOpen(false)
+        cb()
+
+    }
 
 
     return (
@@ -58,7 +68,10 @@ export default function UserDropdown({ user }: UserDropdownProps) {
                             <Button
                                 variant='ghost'
                                 size='sm'
-                                href={item.url}
+                                // href={item.url}
+                                onClick={() => {
+                                    closeDropdownWrapper(() => router.push(item.url))
+                                }}
                                 rightIcon={item.icon}
                                 className='w-full justify-start rounded-none py-1 px-4 text-xs flex-center-between cursor-pointer'>
 
@@ -74,10 +87,10 @@ export default function UserDropdown({ user }: UserDropdownProps) {
 
                     <li>
                         <Button
-                            onClick={logoutHandler}
+                            onClick={() => closeDropdownWrapper(logoutHandler)}
                             variant='ghost-destructive' size='sm'
                             rightIcon={<LogOutIcon className='size-3.5' />}
-                            className='w-full justify-start rounded-none py-1 px-4 text-xs flex-center-between cursor-pointer'>
+                            className='w-full justify-start rounded-none py-1 px-4 text-xs flex-center-between text-destructive cursor-pointer'>
 
                             <Typography
                                 className='text-nowrap'

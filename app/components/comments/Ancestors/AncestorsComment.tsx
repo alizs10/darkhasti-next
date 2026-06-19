@@ -9,6 +9,7 @@ import DeleteCommentDetailsButton from '../../common/DeleteCommentDetailsButton'
 import EditButton from '../../common/EditButton';
 import AttachedFiles from '../../common/attach-files/AttachedFiles';
 import CommentItemButtons from '../CommentItemButtons';
+import Avatar from '../../common/Avatar';
 
 interface AncestorsCommentProps {
     comment: Comment;
@@ -30,9 +31,14 @@ export default function AncestorsComment({ comment, user }: AncestorsCommentProp
                     <div className="flex-row-center gap-x-2">
 
 
-                        <div className="size-10 rounded-full bg-secondary flex-center">
+                        {/* <div className="size-10 rounded-full bg-secondary flex-center">
                             <User2Icon className='size-6 text-muted-foreground' />
-                        </div>
+                        </div> */}
+
+                        <Avatar
+                            className='bg-muted'
+                            username={comment.author?.username ?? "?"}
+                        />
 
 
                         <div className="flex flex-col">

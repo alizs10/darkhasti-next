@@ -50,6 +50,7 @@ export default function NewRequest() {
     });
 
     const saveAsDraft = watch("save_as_draft");
+    const description = watch("description");
 
     // Sync attached files IDs with react-hook-form
     useEffect(() => {
@@ -103,6 +104,8 @@ export default function NewRequest() {
                         placeholder="توضیحات"
                         rows={10}
                         error={errors.description?.message}
+                        maxLength={1000}
+                        currentLength={description.length}
                     />
 
                     <MyAttachedFiles attachableType="request" />

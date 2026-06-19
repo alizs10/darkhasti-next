@@ -54,7 +54,8 @@ export async function logoutReq() {
     try {
         const res = await axiosServer.post<ApiResponse>("/logout")
         return res.status === 200
-    } catch {
+    } catch (error) {
+        console.log(error)
         return false
     }
 }
