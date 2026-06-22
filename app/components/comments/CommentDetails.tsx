@@ -13,6 +13,7 @@ import { Typography } from '../common/Typography'
 import EditButton from '../common/EditButton'
 import DeleteCommentDetailsButton from '../common/DeleteCommentDetailsButton'
 import Avatar from '../common/Avatar'
+import { getTextDirection } from '@/app/helpers'
 
 interface CommentDetailsProps {
     data: Comment
@@ -23,7 +24,7 @@ export default async function CommentDetails({ data }: CommentDetailsProps) {
     const session = await auth()
     const auth_required = !session?.user
 
-    console.log("ancestors comment: ", data.user_vote_status)
+    const bodyDir = getTextDirection(data.body)
 
 
     return (
@@ -112,9 +113,16 @@ export default async function CommentDetails({ data }: CommentDetailsProps) {
 
                         </div>
 
-                        <Typography
+                        {/* <Typography
                             className='mt-4 mb-8 text-justify line-clamp-3 text-ellipsis'
                             variant="body-sm"
+                        >
+                            {data.body}
+                        </Typography> */}
+
+                        <Typography
+                            className={`${bodyDir === 'ltr' ? 'dir-ltr' : ''} mt-4 mb-8`}
+                            variant="pre"
                         >
                             {data.body}
                         </Typography>

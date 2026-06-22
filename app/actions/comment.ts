@@ -62,10 +62,14 @@ export const getMyComment = cached(async (comment_id: number | string) => {
 
 export async function getComments(id: number | string, type: 'comment' | 'request', order: CommentOrder) {
     // Use the correct endpoint - for comment replies, use /replies not /comments
+
+
+
     const url = type === 'request'
         ? `/requests/${id}/comments?order=${order}`
         : `/comments/${id}/replies?order=${order}`;
 
+    console.log("calling: ", url)
     try {
         const result = await axiosServer.get<ApiResponse<Comment[]>>(url);
         return result.data;

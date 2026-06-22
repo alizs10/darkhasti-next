@@ -1,6 +1,5 @@
-import { MessageCircleCheckIcon, SaveIcon, User2Icon } from 'lucide-react'
-import Comments from '../comments/Comments';
-import { CommentOrder, Request } from '@/app/types';
+import { MessageCircleCheckIcon, SaveIcon } from 'lucide-react'
+import { Request } from '@/app/types';
 import { auth } from '@/app/lib/auth';
 import BackButton from '../common/BackButton';
 import momentFa from '@/app/lib/moment';

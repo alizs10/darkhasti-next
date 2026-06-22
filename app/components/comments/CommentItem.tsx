@@ -13,6 +13,7 @@ import DeleteCommentButton from '../common/DeleteCommentButton';
 import { useComments } from '@/app/context/CommentsContext';
 import ToggleChosenAnswerButton from './ToggleChosenAnswerButton';
 import Avatar from '../common/Avatar';
+import { getTextDirection } from '@/app/helpers';
 
 interface CommentItem extends Comment {
   editable?: boolean;
@@ -30,7 +31,7 @@ export default function CommentItem({ commentable_id, commentable, comment, user
 
   const { request_author_id } = useComments()
 
-
+  const bodyDir = getTextDirection(comment.body)
 
 
   return (
@@ -115,9 +116,16 @@ export default function CommentItem({ commentable_id, commentable, comment, user
         </div>
 
       </div>
-      <Typography
+      {/* <Typography
         className='mt-4 mb-8 text-justify line-clamp-3 text-ellipsis'
         variant="body-sm"
+      >
+        {comment.body}
+      </Typography> */}
+
+      <Typography
+        className={`${bodyDir === 'ltr' ? 'dir-ltr' : ''} mt-4 mb-8`}
+        variant="pre"
       >
         {comment.body}
       </Typography>

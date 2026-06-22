@@ -50,7 +50,8 @@ export default function ToggleChosenAnswerButton({ value, comment_id }: ToggleCh
         <Button
             disabled={isLoading}
             onClick={handleToggle}
-            variant='ghost-success'
+            variant={!value ? 'ghost-success' : 'ghost-destructive'}
+            className='disabled:bg-muted'
             size='icon-xs'
         >
             {value ? (

@@ -10,6 +10,7 @@ import EditButton from '../../common/EditButton';
 import AttachedFiles from '../../common/attach-files/AttachedFiles';
 import CommentItemButtons from '../CommentItemButtons';
 import Avatar from '../../common/Avatar';
+import { getTextDirection } from '@/app/helpers';
 
 interface AncestorsCommentProps {
     comment: Comment;
@@ -17,6 +18,7 @@ interface AncestorsCommentProps {
 }
 
 export default function AncestorsComment({ comment, user }: AncestorsCommentProps) {
+    const bodyDir = getTextDirection(comment.body)
 
     return (
 
@@ -96,9 +98,16 @@ export default function AncestorsComment({ comment, user }: AncestorsCommentProp
                     </div>
 
                 </div>
-                <Typography
+                {/* <Typography
                     className='mt-4 mb-8 text-justify line-clamp-3 text-ellipsis'
                     variant="body-sm"
+                >
+                    {comment.body}
+                </Typography> */}
+
+                <Typography
+                    className={`${bodyDir === 'ltr' ? 'dir-ltr' : ''} mt-4 mb-8`}
+                    variant="pre"
                 >
                     {comment.body}
                 </Typography>

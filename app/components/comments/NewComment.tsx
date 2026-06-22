@@ -36,6 +36,7 @@ export default function NewComment({ type, parent_id }: NewCommentProps) {
         handleSubmit,
         formState: { errors, isValid, isSubmitting },
         setValue,
+        watch,
         reset,
     } = useForm<FormData>({
         resolver: zodResolver(createCommentSchema),
@@ -47,6 +48,8 @@ export default function NewComment({ type, parent_id }: NewCommentProps) {
             parent_id: parent_id?.toString(),
         },
     });
+
+    const body = watch("body")
 
     // Sync temp_files from context to form
     useEffect(() => {
@@ -95,6 +98,8 @@ export default function NewComment({ type, parent_id }: NewCommentProps) {
                         {...register("body")}
                         placeholder="پاسخ شما..."
                         rows={10}
+                        maxLength={1000}
+                        currentLength={body.length}
                         error={errors.body?.message}
                     />
 

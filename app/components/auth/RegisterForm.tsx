@@ -9,7 +9,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 
 import { ArrowLeftIcon, CheckCircleIcon, CheckIcon, XCircleIcon, XIcon } from 'lucide-react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
@@ -28,6 +28,10 @@ type RegisterFormValues = z.infer<
 
 export default function RegisterForm() {
     const router = useRouter()
+    const searchParams = useSearchParams()
+
+    const backUrl =
+        searchParams.get('back_url')
 
     const [isLoading, setIsLoading] =
         useState(false)
@@ -155,8 +159,16 @@ export default function RegisterForm() {
             'ثبت نام با موفقیت انجام شد. لطفا وارد شوید.'
         )
 
+        let url = `/auth?form=login`
+        if (username) {
+            url += `&username=${username}`
+        }
+        if (backUrl) {
+            url += `&back_url=${backUrl}`
+        }
+
         router.push(
-            `/auth?form=login&username=${username}`
+            url
         )
     }
 

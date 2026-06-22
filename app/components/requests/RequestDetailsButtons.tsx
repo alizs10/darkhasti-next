@@ -1,12 +1,13 @@
 "use client"
 
-import { ThumbsDownIcon, ThumbsUpIcon } from 'lucide-react'
+import { ArrowBigDownIcon, ArrowBigUpIcon, MinusIcon, PlusIcon, ThumbsDownIcon, ThumbsUpIcon } from 'lucide-react'
 import { MouseEvent, useState } from 'react';
 import { toast } from 'sonner';
 import { handleVote } from '@/app/actions/vote';
 import { useAuthRequired } from '@/app/context/AuthRequiredContext';
 import { Button } from '../common/Button';
 import { Typography } from '../common/Typography';
+import VoteButton from '../common/VoteButton';
 
 interface RequestDetailsButtonsProps {
     user_vote?: null | "like" | "dislike";
@@ -85,10 +86,11 @@ export default function RequestDetailsButtons({ user_vote, request_id, auth_requ
     return (
         <div className="flex-row-center gap-x-4">
             <div className="flex-row-center gap-x-0">
-                <Button variant='ghost' size="sm" className={`px-2 h-auto py-1 ${userVote === 'like' ? 'text-success' : 'text-foreground'} disabled:bg-muted`}
+                {/* <Button variant='ghost' size="sm" className={`px-2 h-auto py-1 ${userVote === 'like' ? 'text-success' : 'text-foreground'} disabled:bg-muted`}
                     onClick={(e) => onVote(e, 'like')}
                     disabled={disabledType === 'like'}
-                    rightIcon={<ThumbsUpIcon className='size-3.5' />}
+                    // rightIcon={<ThumbsUpIcon className='size-3.5' />}
+                    rightIcon={<ArrowBigUpIcon className='size-3.5' />}
                 >
                     <Typography
                         variant="caption-xs"
@@ -100,14 +102,30 @@ export default function RequestDetailsButtons({ user_vote, request_id, auth_requ
                 <Button variant='ghost' size="sm" className={`px-2 h-auto py-1 ${userVote === 'dislike' ? 'text-destructive' : 'text-foreground'} disabled:bg-muted`}
                     onClick={(e) => onVote(e, 'dislike')}
                     disabled={disabledType === 'dislike'}
-                    rightIcon={<ThumbsDownIcon className='size-3.5' />}
+                    // rightIcon={<ThumbsDownIcon className='size-3.5' />}
+                    rightIcon={<ArrowBigDownIcon className='size-3.5' />}
                 >
                     <Typography
                         variant="caption-xs"
                     >
                         {votes.dislikes}
                     </Typography>
-                </Button>
+                </Button> */}
+
+                <VoteButton
+                    label={String(votes.likes)}
+                    disabled={disabledType === "like"}
+                    icon={<ArrowBigUpIcon className='size-3.5' />}
+                    onClick={(e) => onVote(e, 'like')}
+                    className={`${userVote === 'like' ? 'text-success' : 'text-foreground'}`}
+                />
+                <VoteButton
+                    label={String(votes.dislikes)}
+                    disabled={disabledType === "dislike"}
+                    icon={<ArrowBigDownIcon className='size-3.5' />}
+                    onClick={(e) => onVote(e, 'dislike')}
+                    className={`${userVote === 'dislike' ? 'text-destructive' : 'text-foreground'}`}
+                />
             </div>
 
         </div>

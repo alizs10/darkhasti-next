@@ -1,12 +1,13 @@
 "use client"
 
-import { ThumbsDownIcon, ThumbsUpIcon } from 'lucide-react'
+import { ArrowBigDownIcon, ArrowBigUpIcon, ThumbsDownIcon, ThumbsUpIcon } from 'lucide-react'
 import { MouseEvent, useState } from 'react';
 import { toast } from 'sonner';
 import { handleVote } from '@/app/actions/vote';
 import { useAuthRequired } from '@/app/context/AuthRequiredContext';
 import { Button } from '../common/Button';
 import { Typography } from '../common/Typography';
+import VoteButton from '../common/VoteButton';
 
 interface CommentDetailsButtonsProps {
     user_vote?: null | "like" | "dislike";
@@ -32,10 +33,9 @@ export default function CommentDetailsButtons({ user_vote, comment_id, auth_requ
     const [disabledType, setDisabledType] = useState<null | "like" | "dislike">(null)
 
 
-    async function voteHandler(e: MouseEvent<HTMLButtonElement>, type: "like" | "dislike") {
+    async function voteHandler(type: "like" | "dislike") {
 
-        e.stopPropagation()
-        e.preventDefault()
+
 
         if (auth_required) {
             showAuthModal(`/comment/${comment_id}`);
@@ -73,10 +73,18 @@ export default function CommentDetailsButtons({ user_vote, comment_id, auth_requ
 
     }
 
+    async function onVote(e: MouseEvent<HTMLButtonElement>, type: "like" | "dislike") {
+
+        e.preventDefault()
+        e.stopPropagation()
+
+        await voteHandler(type)
+    }
+
     return (
         <div className="flex-row-center gap-x-4">
             <div className="flex-row-center gap-x-0">
-                <Button variant='ghost' size="sm" className={`py-0.5 px-1.5 ${userVote === 'like' ? 'text-success' : 'text-foreground'}`} onClick={(e) => voteHandler(e, "like")}
+                {/* <Button variant='ghost' size="sm" className={`py-0.5 px-1.5 ${userVote === 'like' ? 'text-success' : 'text-foreground'}`} onClick={(e) => voteHandler(e, "like")}
                     disabled={disabledType === 'like'}
                     rightIcon={<ThumbsUpIcon className='size-3.5' />}
                 >
@@ -96,7 +104,22 @@ export default function CommentDetailsButtons({ user_vote, comment_id, auth_requ
                     >
                         {votes.dislikes}
                     </Typography>
-                </Button>
+                </Button> */}
+
+                <VoteButton
+                    label={String(votes.likes)}
+                    disabled={disabledType === "like"}
+                    icon={<ArrowBigUpIcon className='size-3.5' />}
+                    onClick={(e) => onVote(e, 'like')}
+                    className={`${userVote === 'like' ? 'text-success' : 'text-foreground'}`}
+                />
+                <VoteButton
+                    label={String(votes.dislikes)}
+                    disabled={disabledType === "dislike"}
+                    icon={<ArrowBigDownIcon className='size-3.5' />}
+                    onClick={(e) => onVote(e, 'dislike')}
+                    className={`${userVote === 'dislike' ? 'text-destructive' : 'text-foreground'}`}
+                />
             </div>
         </div>
     )

@@ -1,7 +1,7 @@
 "use client"
 
 import { changePasswordReq } from '@/app/actions/auth';
-import { LockIcon } from 'lucide-react'
+import { CheckIcon, LockIcon, XIcon } from 'lucide-react'
 import React, { ChangeEvent, useState } from 'react'
 import { Button } from '../common/Button';
 import { Typography } from '../common/Typography';
@@ -40,6 +40,30 @@ export default function ChangePassword() {
             new_password_confirmation: '',
         },
     })
+    const new_password = watch('new_password')
+
+    const newPasswordRules = [
+        {
+            label: 'حداقل ۸ کاراکتر',
+            isValid: (new_password || '').length >= 8,
+        },
+        {
+            label: 'حداقل یک حرف بزرگ',
+            isValid: /[A-Z]/.test(new_password || ''),
+        },
+        {
+            label: 'حداقل یک حرف کوچک',
+            isValid: /[a-z]/.test(new_password || ''),
+        },
+        {
+            label: 'حداقل یک عدد',
+            isValid: /\d/.test(new_password || ''),
+        },
+        {
+            label: 'حداقل یک کاراکتر ویژه',
+            isValid: /[^A-Za-z0-9]/.test(new_password || ''),
+        },
+    ]
 
 
     const onSubmit = async (
@@ -118,6 +142,10 @@ export default function ChangePassword() {
                             ?.message
                     }
                 />
+
+
+
+
                 <PasswordInput
                     {...register('new_password')}
 
@@ -127,6 +155,33 @@ export default function ChangePassword() {
                             ?.message
                     }
                 />
+
+                {new_password.length > 0 && (
+                    <div className="flex flex-col gap-y-1">
+                        {newPasswordRules.map(
+                            ({ label, isValid }) => (
+                                <div key={label} className="flex-row-center gap-x-1.5">
+                                    {isValid ? (
+                                        <CheckIcon className='size-3 text-success' />
+                                    ) : (
+                                        <XIcon className='size-3 text-muted-foreground' />
+                                    )}
+                                    <Typography
+
+                                        variant="caption-xxs"
+                                        className={
+                                            isValid
+                                                ? 'text-success'
+                                                : 'text-muted-foreground'
+                                        }
+                                    >
+                                        {label}
+                                    </Typography>
+                                </div>
+                            )
+                        )}
+                    </div>
+                )}
 
                 <PasswordInput
                     {...register('new_password_confirmation')}

@@ -11,6 +11,10 @@ export default function zAuthForm() {
 
     const searchparams = useSearchParams()
     const selected_form = searchparams.get("form") === "register" ? "register" : "login"
+    const back_url = searchparams.get("back_url") ?? null
+
+    const back_url_param = back_url ? `&back_url=${back_url}` : undefined
+
 
     return (
 
@@ -29,7 +33,7 @@ export default function zAuthForm() {
 
                 <Link
 
-                    href={"/auth?form=login"} className={`relative z-10 px-4 py-1 rounded-full ${selected_form === 'login' ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}  transition-all duration-200 text-sm`}>
+                    href={`/auth?form=login${back_url_param}`} className={`relative z-10 px-4 py-1 rounded-full ${selected_form === 'login' ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}  transition-all duration-200 text-sm`}>
                     <Typography
                         variant="caption"
                     >
@@ -38,7 +42,7 @@ export default function zAuthForm() {
                 </Link>
                 <Link
 
-                    href={"/auth?form=register"} className={`relative z-10 px-4 py-1 rounded-full ${selected_form === 'register' ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}  transition-all duration-200 text-sm`}>
+                    href={`/auth?form=register${back_url_param}`} className={`relative z-10 px-4 py-1 rounded-full ${selected_form === 'register' ? 'text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}  transition-all duration-200 text-sm`}>
                     <Typography
                         variant="caption"
                     >

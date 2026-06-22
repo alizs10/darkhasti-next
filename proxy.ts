@@ -6,14 +6,21 @@ const protectedPaths = ["/my", "/my/requests", "/new-request"]
 const authPaths = ["/auth"]
 
 export const proxy = auth((req) => {
-    const { pathname } = req.nextUrl
-    const session = req.auth // already refreshed-and-persisted by the wrapper
+    const { pathname, search } = req.nextUrl
+    const session = req.auth
 
     const isProtectedRoute = protectedPaths.some(p => pathname.startsWith(p))
     const isAuthRoute = authPaths.some(p => pathname.startsWith(p))
 
     if (isProtectedRoute && !session) {
-        return NextResponse.redirect(new URL("/auth?form=login", req.url))
+        // Build the redirect URL with back_url
+        const loginUrl = new URL("/auth", req.url)
+        loginUrl.searchParams.set("form", "login")
+        // Preserve the original path and its query string
+        const originalUrl = pathname + search
+        loginUrl.searchParams.set("back_url", originalUrl)
+
+        return NextResponse.redirect(loginUrl)
     }
 
     if (isAuthRoute && session) {

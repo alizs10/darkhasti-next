@@ -58,10 +58,19 @@ export function CommentsProvider({
         if (!init_data) return
 
         setComments(init_data);
-        let init_count = init_data.length
-        init_count = init_chosen_answer ? init_count + 1 : init_count
-        setCommentCount(init_count)
+        // let init_count = init_data.length
+        // init_count = init_chosen_answer ? init_count + 1 : init_count
+        // setCommentCount(init_count)
     }, [init_data]);
+
+    useEffect(() => {
+
+        if (!comments) return
+
+        let comments_count = comments.length
+        comments_count = chosenAnswer ? comments_count + 1 : comments_count
+        setCommentCount(comments_count)
+    }, [comments, chosenAnswer]);
 
     useEffect(() => {
         if (initialPagination) {

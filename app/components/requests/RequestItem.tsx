@@ -1,4 +1,4 @@
-import { MessageCircleCheckIcon, MessagesSquareIcon, SaveIcon, ThumbsUpIcon, TrendingUpIcon, User2Icon } from 'lucide-react'
+import { ArrowBigUpIcon, MessageCircleCheckIcon, MessagesSquareIcon, PlusIcon, SaveIcon, ThumbsUpIcon, TrendingUpIcon, User2Icon } from 'lucide-react'
 import Link from 'next/link'
 import momentFa from "@/app/lib/moment"
 import EditButton from '../common/EditButton';
@@ -134,7 +134,8 @@ export default function RequestItem({ request, isOwner = false, isInContext = fa
 
 
                     <div className="flex-row-center gap-x-1 text-foreground">
-                        <ThumbsUpIcon className="size-3" />
+                        {/* <ThumbsUpIcon className="size-3" /> */}
+                        <ArrowBigUpIcon className="size-3" />
                         <Typography
                             className=''
                             variant="caption-xs"

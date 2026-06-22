@@ -16,8 +16,8 @@ export default function RequestsList({ layout = 'grid', user_id, my }: RequestsL
   return (
     <>
       <div className={`flex flex-col ${layout === 'grid' ? 'sm:grid sm:grid-cols-2 xl:grid-cols-3' : ''} gap-4 mt-4 z-10`}>
-        {requests?.map((req, i) =>
-          <RequestItem key={i} request={req} isOwner={Number(user_id) === req.author_id} isInContext back_url={my ? "/my/requests" : undefined} />
+        {requests?.map((req) =>
+          <RequestItem key={req.id} request={req} isOwner={Number(user_id) === req.author_id} isInContext back_url={my ? "/my/requests" : undefined} />
         )}
       </div>
 

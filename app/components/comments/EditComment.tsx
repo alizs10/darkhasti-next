@@ -39,6 +39,7 @@ export default function EditComment({ data }: EditCommentProps) {
         register,
         handleSubmit,
         formState: { errors, isValid, isSubmitting },
+        watch,
         setValue,
     } = useForm<FormData>({
         resolver: zodResolver(updateCommentSchema),
@@ -49,6 +50,9 @@ export default function EditComment({ data }: EditCommentProps) {
             deleted_main_files: [],
         },
     });
+
+    const body = watch('body')
+
 
     // Load existing attached files into context
     useEffect(() => {
@@ -106,6 +110,8 @@ export default function EditComment({ data }: EditCommentProps) {
                         {...register('body')}
                         placeholder="پاسخ شما..."
                         rows={10}
+                        maxLength={1000}
+                        currentLength={body.length}
                         error={errors.body?.message}
                     />
 

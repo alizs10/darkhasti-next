@@ -41,6 +41,7 @@ export default function EditRequest({ request }: EditRequestProps) {
         register,
         handleSubmit,
         formState: { errors, isValid, isSubmitting },
+        watch,
         setValue
     } = useForm<FormData>({
         resolver: zodResolver(updateRequestSchema),
@@ -53,6 +54,8 @@ export default function EditRequest({ request }: EditRequestProps) {
             deleted_main_files: [],
         },
     });
+
+    const description = watch('description')
 
     // Load existing attached files into the context (permanents)
     useEffect(() => {
@@ -120,6 +123,8 @@ export default function EditRequest({ request }: EditRequestProps) {
                         {...register("description")}
                         placeholder="توضیحات"
                         rows={10}
+                        maxLength={1000}
+                        currentLength={description.length}
                         error={errors.description?.message}
                     />
 

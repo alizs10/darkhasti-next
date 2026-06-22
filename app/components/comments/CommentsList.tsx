@@ -15,7 +15,7 @@ interface CommentsListProps {
 }
 
 export default function CommentsList({ commentable, commentable_id, pinned, user }: CommentsListProps) {
-    const { chosenAnswer, comments } = useComments();
+    const { chosenAnswer, comments, commentsCount } = useComments();
 
     return (
         <AuthRequiredProvider>
@@ -32,9 +32,9 @@ export default function CommentsList({ commentable, commentable_id, pinned, user
                     />
                 )}
 
-                {comments?.map((comment, i) => (
+                {comments?.map((comment) => (
                     <CommentItem
-                        key={comment.id || i}
+                        key={comment.id}
                         comment={{ ...comment, editable: comment?.author?.id.toString() === user?.id?.toString() }}
                         user={user}
                         commentable={commentable}
@@ -44,7 +44,7 @@ export default function CommentsList({ commentable, commentable_id, pinned, user
                 ))}
 
             </div>
-            {comments?.length === 0 && !pinned && (
+            {commentsCount === 0 && (
                 <div className="flex-center mx-auto w-fit pt-6 pb-10">
 
                     <Typography

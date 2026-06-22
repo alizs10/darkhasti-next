@@ -30,7 +30,7 @@ export default function Comments({ commentable, commentable_id, count, pinned, c
     const [paginationData, setPaginationData] = useState<PaginationData | undefined>(undefined)
 
     // 1. Use const instead of let, as we don't need to mutate this variable
-    const orderParam = searchParams.get("order") ?? "new";
+    const orderParam = searchParams.get("comment_order") ?? "new";
 
     // 2. Cast the array to readonly string[] so .includes() accepts the generic string
     const isValidOrder = (COMMENT_ORDERS as readonly string[]).includes(orderParam);
@@ -59,6 +59,8 @@ export default function Comments({ commentable, commentable_id, count, pinned, c
 
 
         console.log(order)
+
+        console.log("are we here???: ", order)
 
         if (!order) return
         fetchData()

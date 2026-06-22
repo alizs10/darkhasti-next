@@ -89,7 +89,7 @@ export default function LoginForm() {
             setIsLoading(false)
 
             router.replace(
-                result?.url ||
+                // result?.url ||
                 backUrl ||
                 '/'
             )
